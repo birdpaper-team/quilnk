@@ -11,6 +11,7 @@
   "dependencies": {
     "quilnk": "workspace:*",
     "@quilnk/components": "workspace:*",
+    "@quilnk/theme": "workspace:*",
     "vue": "^3.4.27"
   },
   "devDependencies": {

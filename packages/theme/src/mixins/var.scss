@@ -1,0 +1,17 @@
+@use "function" as *;
+
+// @include css-var-from-global(('button', 'text-color'), ('color', $type))
+// --bp-button-text-color: var(--bp-color-#{$type});
+@mixin css-var-from-global($var, $gVar) {
+  $varName: joinVarName($var);
+  $gVarName: joinVarName($gVar);
+  #{$varName}: var(#{$gVarName});
+}
+
+// @include css-var-from-global(('button', 'text-color'), ('color', $type))
+// --bp-button-text-color: var(--bp-color-#{$type}-rgb);
+@mixin css-var-from-global-rgb($var, $gVar) {
+  $varName: joinVarName($var);
+  $gVarName: joinVarName($gVar);
+  #{$varName}: var(#{$gVarName}-rgb);
+}

@@ -1,0 +1,31 @@
+@use "../common/design" as *;
+@use "../common/animation.scss" as *;
+
+$B: null;
+@mixin b($block) {
+  $B: $namespace + "-" + $block !global;
+
+  .#{$B} {
+    @content;
+  }
+}
+
+@mixin spin($time) {
+  animation: rotating $time linear infinite;
+  -webkit-animation: rotating $time linear infinite;
+  @content;
+}
+
+@mixin responsive($breakpoint) {
+  @media (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+@mixin flex($direction, $justify, $align) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  @content;
+}

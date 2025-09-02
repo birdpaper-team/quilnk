@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import './style.css'
+import './style.scss'
 
 import quilnkEditor from 'quilnk/index';
-console.log('quilnkEditor: ', quilnkEditor);
+import "@quilnk/theme/src/index.scss";
 
 createApp(App).use(quilnkEditor).mount('#app')
