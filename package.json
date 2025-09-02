@@ -3,6 +3,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "demo:dev": "pnpm run -C demo dev"
   },
   "keywords": [],
   "author": "",
