@@ -29,8 +29,8 @@
       radial-gradient(1px 1px at 88% 82%, rgba(0,0,0,0.008) 0, rgba(0,0,0,0) 100%),
       radial-gradient(1.2px 1.2px at 35% 65%, rgba(0,0,0,0.006) 0, rgba(0,0,0,0) 100%),
       radial-gradient(0.9px 0.9px at 75% 25%, rgba(0,0,0,0.005) 0, rgba(0,0,0,0) 100%),
-      /* 纸张基色 - 微妙的米白色 */
-      linear-gradient(180deg, #fffffb 0%, #fffef9 40%, #fffdf7 100%);
+      /* 纸张基色 - 纯白色 */
+      #ffffff;
     overflow: hidden;
     
     // 纸张边缘效果
@@ -56,28 +56,43 @@
 
   // 页边距
   &__page {
-    --page-margin: 18mm;
+    --page-margin: 10mm;
     --line-height: 8mm; // 增加行高让横线更高
     --baseline-offset: 2mm; // 调整基线偏移
+    --line-margin: 15mm; // 横线左右边距
+    --line-vertical-margin: 20mm; // 横线上下边距
     height: 100%;
     padding: var(--page-margin);
     box-sizing: border-box;
     position: relative;
-
-    // 横线纸效果 - 更高的行间距
-    background:
-      repeating-linear-gradient(
-        to bottom,
-        transparent 0mm,
-        transparent calc(var(--line-height) - 0.2mm),
-        rgba(138, 169, 211, 0.25) calc(var(--line-height) - 0.1mm),
-        rgba(138, 169, 211, 0.15) var(--line-height)
-      );
+    
+    // 使用伪元素创建带边距的横线
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--line-vertical-margin);
+      left: var(--line-margin);
+      right: var(--line-margin);
+      bottom: var(--line-vertical-margin);
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0mm,
+          transparent calc(var(--line-height) - 0.2mm),
+          rgba(108, 139, 181, 0.45) calc(var(--line-height) - 0.1mm),
+          rgba(108, 139, 181, 0.35) var(--line-height)
+        );
+      pointer-events: none;
+    }
   }
 
   // 内容区域 (可编辑)
   &__content {
-    min-height: calc(100% - 0.01px);
+    position: absolute;
+    top: var(--line-vertical-margin);
+    left: var(--line-margin);
+    right: var(--line-margin);
+    bottom: var(--line-vertical-margin);
     outline: none;
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     font-size: 16px;
@@ -85,13 +100,11 @@
     color: #2c2c2c;
     word-break: break-word;
     caret-color: #1f6fff;
+    overflow: hidden; // 防止内容溢出到横线区域外
     
     // 关键：让文字基线精确对齐横线底部
-    position: relative;
-    padding-top: calc(var(--line-height) - var(--baseline-offset)); 
-    
-    // 使用 CSS Grid 确保每行都在横线上
     display: block;
+    padding: 0;
 
     p { 
       margin: 0;
@@ -122,9 +135,6 @@
       display: flex;
       align-items: flex-end;
     }
-    
-    h1 { font-size: 20px; }
-    h2 { font-size: 18px; }
     h3 { font-size: 16px; }
     
     ul, ol { 
