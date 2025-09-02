@@ -1,4 +1,201 @@
 @use "mixins/mixins.scss" as *;
 
+// A4 尺寸: 210mm x 297mm
 @include b("editor") {
+  // 舞台: 居中纸张
+  &__stage {
+    min-height: 100vh;
+    display: grid;
+    place-items: start center;
+    padding: 6vh 0;
+  }
+
+  // 纸张容器
+  &__paper {
+    width: 210mm;
+    height: 297mm;
+    border-radius: 1px;
+    position: relative;
+    // 更真实的纸张阴影 - 更淡更自然
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.02),
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 2px 4px rgba(0, 0, 0, 0.03),
+      0 4px 12px rgba(0, 0, 0, 0.02),
+      0 8px 24px rgba(0, 0, 0, 0.015);
+    background:
+      /* 真实纸张的纤维纹理 */
+      radial-gradient(0.8px 0.8px at 12% 18%, rgba(0,0,0,0.01) 0, rgba(0,0,0,0) 100%),
+      radial-gradient(1px 1px at 88% 82%, rgba(0,0,0,0.008) 0, rgba(0,0,0,0) 100%),
+      radial-gradient(1.2px 1.2px at 35% 65%, rgba(0,0,0,0.006) 0, rgba(0,0,0,0) 100%),
+      radial-gradient(0.9px 0.9px at 75% 25%, rgba(0,0,0,0.005) 0, rgba(0,0,0,0) 100%),
+      /* 纸张基色 - 微妙的米白色 */
+      linear-gradient(180deg, #fffffb 0%, #fffef9 40%, #fffdf7 100%);
+    overflow: hidden;
+    
+    // 纸张边缘效果
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 1px;
+      border: 0.3px solid rgba(0,0,0,0.06);
+      pointer-events: none;
+    }
+    
+    // 纸张内部微光
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0.5px;
+      border-radius: 0.5px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%);
+      pointer-events: none;
+    }
+  }
+
+  // 页边距
+  &__page {
+    --page-margin: 18mm;
+    --line-height: 8mm; // 增加行高让横线更高
+    --baseline-offset: 2mm; // 调整基线偏移
+    height: 100%;
+    padding: var(--page-margin);
+    box-sizing: border-box;
+    position: relative;
+
+    // 横线纸效果 - 更高的行间距
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0mm,
+        transparent calc(var(--line-height) - 0.2mm),
+        rgba(138, 169, 211, 0.25) calc(var(--line-height) - 0.1mm),
+        rgba(138, 169, 211, 0.15) var(--line-height)
+      );
+  }
+
+  // 内容区域 (可编辑)
+  &__content {
+    min-height: calc(100% - 0.01px);
+    outline: none;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-size: 16px;
+    line-height: var(--line-height);
+    color: #2c2c2c;
+    word-break: break-word;
+    caret-color: #1f6fff;
+    
+    // 关键：让文字基线精确对齐横线底部
+    position: relative;
+    padding-top: calc(var(--line-height) - var(--baseline-offset)); 
+    
+    // 使用 CSS Grid 确保每行都在横线上
+    display: block;
+
+    p { 
+      margin: 0;
+      padding: 0;
+      line-height: var(--line-height);
+      min-height: var(--line-height);
+      // 使用 flexbox 确保文字基线对齐
+      display: flex;
+      align-items: flex-end; // 让文字底部对齐
+      
+      &:not(:last-child) {
+        margin-bottom: 0;
+      }
+      
+      // 空段落也要占据行高
+      &:empty {
+        min-height: var(--line-height);
+      }
+    }
+    
+    // 标题保持行对齐
+    h1, h2, h3, h4, h5, h6 { 
+      line-height: var(--line-height);
+      margin: 0;
+      padding: 0;
+      font-weight: 600;
+      min-height: var(--line-height);
+      display: flex;
+      align-items: flex-end;
+    }
+    
+    h1 { font-size: 20px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+    
+    ul, ol { 
+      padding-left: 20px; 
+      margin: 0;
+      
+      li {
+        line-height: var(--line-height);
+        margin: 0;
+        padding: 0;
+        min-height: var(--line-height);
+        display: flex;
+        align-items: flex-end;
+      }
+    }
+    
+    blockquote {
+      border-left: 2px solid #8aa9d3;
+      margin: 0;
+      padding-left: 12px;
+      color: #5a5a5a;
+      background: rgba(138, 169, 211, 0.03);
+      line-height: var(--line-height);
+      min-height: var(--line-height);
+      display: flex;
+      align-items: flex-end;
+    }
+    
+    a { 
+      color: #1f6fff; 
+      text-decoration: underline;
+      text-decoration-thickness: 0.5px;
+    }
+    
+    img { 
+      max-width: 100%; 
+      border-radius: 2px; 
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin: 0;
+      display: block;
+    }
+
+    // 占位符样式
+    &:empty::before {
+      content: attr(data-placeholder);
+      color: #a8a8a8;
+      line-height: var(--line-height);
+      font-style: italic;
+      display: flex;
+      align-items: flex-end;
+      min-height: var(--line-height);
+    }
+    
+    // 确保焦点时保持对齐
+    &:focus {
+      outline: none;
+    }
+    
+    // 处理 contenteditable 的默认行为
+    div {
+      line-height: var(--line-height);
+      min-height: var(--line-height);
+      display: flex;
+      align-items: flex-end;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  // 小屏幕适配
+  @media (max-width: 900px) {
+    &__stage { padding: 16px 0 60px; }
+  }
 }
