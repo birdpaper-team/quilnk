@@ -2,11 +2,71 @@
   "name": "quilnk",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "MIT",
+  "main": "lib/index.cjs",
+  "module": "es/index.mjs",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./es/index.mjs",
+      "require": "./lib/index.cjs"
+    },
+    "./global": {
+      "types": "./global.d.ts"
+    },
+    "./es": {
+      "types": "./types/index.d.ts",
+      "import": "./es/index.mjs"
+    },
+    "./lib": {
+      "types": "./types/index.d.ts",
+      "require": "./lib/index.cjs"
+    },
+    "./es/*.mjs": {
+      "types": "./types/*.d.ts",
+      "import": "./es/*.mjs"
+    },
+    "./es/*": {
+      "types": [
+        "./types/*.d.ts",
+        "./types/*/index.d.ts"
+      ],
+      "import": "./es/*.mjs"
+    },
+    "./lib/*.cjs": {
+      "types": "./types/*.d.ts",
+      "require": "./lib/*.cjs"
+    },
+    "./lib/*": {
+      "types": [
+        "./types/*.d.ts",
+        "./types/*/index.d.ts"
+      ],
+      "require": "./lib/*.cjs"
+    },
+    "./package.json": "./package.json",
+    "./*": "./*"
+  },
+  "files": [
+    "dist",
+    "es",
+    "lib",
+    "theme",
+    "types",
+    "global.d.ts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "radash": "^12.1.0",
+    "@vueuse/components": "^11.1.0",
+    "@vueuse/core": "^10.11.0",
+    "birdpaper-icon": "0.9.0"
+  },
+  "devDependencies": {
+    "vue": "^3.5.3"
+  }
 }

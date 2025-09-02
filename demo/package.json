@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "quilnk": "workspace:*",
+    "@quilnk/components": "workspace:*",
     "vue": "^3.4.27"
   },
   "devDependencies": {

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": false,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types/", "birdpaper-ui/global"],
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "demo/**/*.ts",
+    "demo/**/*.d.ts",
+    "demo/**/*.tsx",
+    "demo/**/*.vue",
+    "packages/**/*.ts",
+    "packages/**/*.d.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.vue",
+  ],
+  "exclude": ["dist", "**/*.js"]
+}
