@@ -6,9 +6,12 @@
     height: 52px;
     width: 100%;
     background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  .container{
+  .container {
     padding: 40px 0;
   }
 }
