@@ -144,6 +144,14 @@
     display: block;
     padding: 0;
 
+    // 确保br标签的高度与行高一致
+    br {
+      display: block;
+      margin: 0;
+      line-height: var(--line-height);
+      height: var(--line-height);
+    }
+
     p { 
       margin: 0;
       padding: 0;
