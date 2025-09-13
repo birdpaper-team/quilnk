@@ -1,7 +1,15 @@
 <template>
   <div class="wrap">
-    <quilnk-editor />
+    <div class="top-bar"></div>
+
+    <div class="container">
+      <quilnk-editor />
+    </div>
   </div>
 </template>
+
 <script setup lang="ts"></script>
-<style scoped></style>
+
+<style scoped lang="scss">
+@import "./app.scss";
+</style>
