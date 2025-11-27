@@ -20,5 +20,5 @@ const addPage = () => {
 </script>
 
 <style scoped lang="scss">
-@import "./app.scss";
+@use "./app.scss";
 </style>
