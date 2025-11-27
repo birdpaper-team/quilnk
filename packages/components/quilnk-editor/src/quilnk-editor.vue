@@ -78,9 +78,6 @@ const {
   getCurrentPageIndex
 } = usePageManagement(props.modelValue || "");
 
-// 使用键盘事件hook
-const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value);
-
 // 使用粘贴处理hook
 const { onPaste } = usePasteHandling();
 
@@ -89,8 +86,13 @@ const {
   getAllContent,
   initializeContent,
   setupModelValueWatch,
-  onInput
+  onInput,
+  undo,
+  redo
 } = useDataSync(pages, pageRefs, props.modelValue || "", emit);
+
+// 使用键盘事件hook
+const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo);
 
 // 包装addPage方法，添加事件触发
 function addPage(index?: number): number {

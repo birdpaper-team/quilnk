@@ -210,7 +210,7 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageRefs: (HTMLDivElement 
   triggerInputEvent(pageRefs, pageIndex);
 }
 
-export function useKeyboardEvents(pageRefs: (HTMLDivElement | null)[]) {
+export function useKeyboardEvents(pageRefs: (HTMLDivElement | null)[], undo?: () => void, redo?: () => void) {
   // 处理键盘按下事件
   function onKeyDown(event: KeyboardEvent, pageIndex: number) {
     // 处理常用快捷键
@@ -232,12 +232,26 @@ export function useKeyboardEvents(pageRefs: (HTMLDivElement | null)[]) {
           }
           return false;
         case 'c':
-        case 'v':
         case 'x':
-        case 'z':
-        case 'y':
-          // 允许默认的复制、粘贴、剪切、撤销、重做行为
+          // 允许默认的复制、剪切行为
           return true;
+        case 'z':
+          // Ctrl+Z: 撤销
+          event.preventDefault();
+          event.stopPropagation();
+          if (undo) {
+            undo();
+          }
+          return false;
+        case 'y':
+        case 'shift+z':
+          // Ctrl+Y 或 Ctrl+Shift+Z: 重做
+          event.preventDefault();
+          event.stopPropagation();
+          if (redo) {
+            redo();
+          }
+          return false;
       }
     }
 
