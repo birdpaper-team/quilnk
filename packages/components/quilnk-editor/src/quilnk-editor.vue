@@ -30,8 +30,7 @@
             @paste="(event) => onPaste(event, index)"
             @keydown="(event) => onKeyDown(event, index)"
             @keypress="(event) => onKeyPress(event, index)"
-            @focus="setCurrentPage(index)"
-            v-html="page.content" />
+            @focus="setCurrentPage(index)" />
         </div>
       </div>
 
@@ -44,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick, computed } from "vue";
+import { ref, onMounted, nextTick, computed, watch } from "vue";
 
 defineOptions({ name: "QuilnkEditor" });
 
@@ -163,19 +162,17 @@ function deletePage(index: number): boolean {
 // 聚焦到指定页面
 function focusPage(index: number) {
   if (index >= 0 && index < pageRefs.value.length) {
-    setTimeout(() => {
-      const pageElement = pageRefs.value[index];
-      if (pageElement) {
-        pageElement.focus();
-        currentPageIndex.value = index;
-      }
-    }, 100);
+    const pageElement = pageRefs.value[index];
+    if (pageElement) {
+      pageElement.focus();
+      currentPageIndex.value = index;
+    }
   }
 }
 
 onMounted(() => {
   // 初始化内容
-  if (props.modelValue && pageRefs.value[0]) {
+  if (props.modelValue) {
     // 如果初始值包含页面分隔符，分割成多页
     const pageContents = props.modelValue.split("\n\n---\n\n");
     if (pageContents.length > 1) {
@@ -189,8 +186,15 @@ onMounted(() => {
     }
   }
 
-  // 聚焦第一页
+  // 直接设置DOM内容并聚焦第一页
   nextTick(() => {
+    // 设置初始内容到DOM
+    pages.value.forEach((page, index) => {
+      if (pageRefs.value[index]) {
+        pageRefs.value[index].innerHTML = page.content;
+      }
+    });
+    // 聚焦第一页
     focusPage(0);
   });
 });
@@ -203,6 +207,46 @@ defineExpose({
   getAllContent,
   getPageCount: () => pages.value.length,
   getCurrentPageIndex: () => currentPageIndex.value,
+});
+
+// 监听modelValue变化，同步到内部状态
+watch(() => props.modelValue, (newValue) => {
+  if (!newValue) {
+    // 如果值为空，重置为单页空内容
+    pages.value = [{ id: generatePageId(), content: "" }];
+    pageRefs.value = [null];
+    
+    // 直接设置DOM内容
+    nextTick(() => {
+      if (pageRefs.value[0]) {
+        pageRefs.value[0].innerHTML = "";
+      }
+    });
+    return;
+  }
+
+  // 如果当前内容与新值相同，不更新
+  const currentContent = getAllContent();
+  if (currentContent === newValue) {
+    return;
+  }
+
+  // 分割新值为多页
+  const pageContents = newValue.split("\n\n---\n\n");
+  pages.value = pageContents.map((content, index) => ({
+    id: index < pages.value.length ? pages.value[index].id : generatePageId(),
+    content: content.trim(),
+  }));
+  pageRefs.value = Array.from({ length: pages.value.length }, () => null);
+  
+  // 直接设置DOM内容
+  nextTick(() => {
+    pages.value.forEach((page, index) => {
+      if (pageRefs.value[index]) {
+        pageRefs.value[index].innerHTML = page.content;
+      }
+    });
+  });
 });
 
 function onInput(event: Event, pageIndex: number) {
@@ -274,11 +318,36 @@ function onPaste(event: ClipboardEvent, pageIndex: number) {
 }
 
 function onKeyDown(event: KeyboardEvent, pageIndex: number) {
-  console.log("Key pressed:", event.key, "Code:", event.code, "Shift:", event.shiftKey, "Target:", event.target); // 调试日志
+  // 处理常用快捷键
+  if (event.ctrlKey || event.metaKey) {
+    switch (event.key.toLowerCase()) {
+      case 'a':
+        // Ctrl+A: 全选
+        event.preventDefault();
+        event.stopPropagation();
+        const pageElement = pageRefs.value[pageIndex];
+        if (pageElement) {
+          const range = document.createRange();
+          range.selectNodeContents(pageElement);
+          const sel = window.getSelection();
+          if (sel) {
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        }
+        return false;
+      case 'c':
+      case 'v':
+      case 'x':
+      case 'z':
+      case 'y':
+        // 允许默认的复制、粘贴、剪切、撤销、重做行为
+        return true;
+    }
+  }
 
   // 处理 Enter 键 - 换行功能 (优先处理)
   if (event.key === "Enter" || event.code === "Enter") {
-    console.log("Enter key detected, preventing default immediately");
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -290,7 +359,6 @@ function onKeyDown(event: KeyboardEvent, pageIndex: number) {
 
   // 处理 Tab 键 - 缩进功能
   if (event.key === "Tab" || event.code === "Tab") {
-    console.log("Tab key detected, preventing default"); // 调试日志
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -298,12 +366,18 @@ function onKeyDown(event: KeyboardEvent, pageIndex: number) {
     insertTabOrUnindent(event.shiftKey, pageIndex);
     return false;
   }
+
+  // 允许删除键的默认行为
+  if (event.key === "Backspace" || event.key === "Delete") {
+    return true;
+  }
+
+  return true;
 }
 
 function onKeyPress(event: KeyboardEvent, pageIndex: number) {
   // 额外的Enter键处理，确保在所有情况下都能捕获
   if (event.key === "Enter" || event.code === "Enter") {
-    console.log("Enter key caught in keypress, preventing default");
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -335,37 +409,92 @@ function getCaretPosition(element: HTMLElement): number {
 function setCaretPosition(element: HTMLElement, offset: number) {
   const range = document.createRange();
   const sel = window.getSelection();
+  
+  if (!sel) return;
 
-  if (sel) {
-    range.setStart(element.childNodes[0] || element, offset);
+  // 处理空元素的情况
+  if (!element.firstChild) {
+    const textNode = document.createTextNode('');
+    element.appendChild(textNode);
+    range.setStart(textNode, 0);
     range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
+    return;
   }
+
+  let currentOffset = 0;
+  let found = false;
+
+  // 递归查找正确的文本节点和偏移量
+  function findTextNode(node: Node): boolean {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const textLength = node.textContent?.length || 0;
+      
+      if (currentOffset + textLength >= offset) {
+        const nodeOffset = Math.max(0, offset - currentOffset);
+        range.setStart(node, nodeOffset);
+        range.collapse(true);
+        return true;
+      }
+      currentOffset += textLength;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      // 遍历子节点
+      for (let i = 0; i < node.childNodes.length; i++) {
+        if (findTextNode(node.childNodes[i])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // 如果没有找到合适的位置，将光标放在最后
+  if (!findTextNode(element)) {
+    // 找到最后一个文本节点
+    let lastTextNode: Node | null = null;
+    
+    function findLastTextNode(node: Node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        lastTextNode = node;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        for (let i = node.childNodes.length - 1; i >= 0; i--) {
+          findLastTextNode(node.childNodes[i]);
+          if (lastTextNode) break;
+        }
+      }
+    }
+    
+    findLastTextNode(element);
+    
+    if (lastTextNode) {
+      const textLength = lastTextNode.textContent?.length || 0;
+      range.setStart(lastTextNode, textLength);
+    } else {
+      // 如果没有文本节点，创建一个
+      const textNode = document.createTextNode('');
+      element.appendChild(textNode);
+      range.setStart(textNode, 0);
+    }
+    range.collapse(true);
+  }
+
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 
 function insertLineBreak(pageIndex: number) {
-  console.log("Inserting line break");
   const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0) {
-    console.log("No selection available for line break");
     return;
   }
 
   const range = selection.getRangeAt(0);
-  console.log("Range details:", {
-    startContainer: range.startContainer,
-    startOffset: range.startOffset,
-    endContainer: range.endContainer,
-    endOffset: range.endOffset,
-    collapsed: range.collapsed,
-  });
 
   try {
     // 方法1: 使用execCommand插入换行
     if (document.execCommand) {
       const success = document.execCommand("insertLineBreak", false);
-      console.log("execCommand insertLineBreak result:", success);
       if (success) {
         triggerInputEvent(pageIndex);
         return;
@@ -373,20 +502,17 @@ function insertLineBreak(pageIndex: number) {
 
       // 如果insertLineBreak不支持，尝试insertHTML
       const success2 = document.execCommand("insertHTML", false, "<br>");
-      console.log("execCommand insertHTML result:", success2);
       if (success2) {
         triggerInputEvent(pageIndex);
         return;
       }
     }
   } catch (e) {
-    console.log("execCommand methods failed:", e);
+    // 忽略execCommand方法失败
   }
 
   // 方法2: 手动插入br标签
   try {
-    console.log("Using manual br insertion method");
-
     // 删除选中的内容（如果有）
     if (!range.collapsed) {
       range.deleteContents();
@@ -406,14 +532,9 @@ function insertLineBreak(pageIndex: number) {
     // 更新选择
     selection.removeAllRanges();
     selection.addRange(newRange);
-
-    console.log("Manual br insertion completed");
   } catch (e) {
-    console.log("Manual br insertion failed:", e);
-
     // 方法3: 使用innerHTML直接操作
     try {
-      console.log("Using innerHTML manipulation method");
       const pageEl = pageRefs.value[pageIndex];
       if (pageEl) {
         const caretPos = getCaretPosition(pageEl);
@@ -425,10 +546,9 @@ function insertLineBreak(pageIndex: number) {
 
         // 设置光标位置到br标签后
         setCaretPosition(pageEl, caretPos + 4); // <br>标签长度为4
-        console.log("innerHTML manipulation completed");
       }
     } catch (e2) {
-      console.log("All line break methods failed:", e2);
+      // 忽略所有换行方法失败
     }
   }
 
@@ -439,17 +559,13 @@ function insertLineBreak(pageIndex: number) {
 function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
   const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0) {
-    console.log("No selection found for tab operation");
     return;
   }
 
   let range = selection.getRangeAt(0);
-  console.log("Current range:", range);
 
   if (isShiftPressed) {
     // Shift+Tab: 减少缩进
-    console.log("Removing indentation - Shift+Tab pressed");
-
     try {
       // 方法1: 使用execCommand删除字符
       let success = false;
@@ -459,13 +575,9 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
         const container = range.startContainer;
         const offset = range.startOffset;
 
-        console.log(`Attempt ${i + 1}: container type:`, container.nodeType, "offset:", offset);
-
         if (container.nodeType === Node.TEXT_NODE && container.textContent && offset > 0) {
           const text = container.textContent;
           const charBefore = text[offset - 1];
-
-          console.log("Character before cursor:", `"${charBefore}"`, "char code:", charBefore.charCodeAt(0));
 
           // 检查前一个字符是否是空格或nbsp
           if (charBefore === " " || charBefore === "\u00A0" || charBefore === "\u0020") {
@@ -476,7 +588,6 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
             // 删除这个字符
             if (document.execCommand) {
               success = document.execCommand("delete", false) || success;
-              console.log("execCommand delete result:", success);
             } else {
               // 手动删除
               range.deleteContents();
@@ -489,17 +600,14 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
               range = newSelection.getRangeAt(0);
             }
           } else {
-            console.log("No space character found, stopping unindent");
             break;
           }
         } else {
-          console.log("Invalid container or position, stopping unindent");
           break;
         }
       }
 
       if (!success) {
-        console.log("execCommand method failed, trying manual method");
         // 方法2: 手动查找和删除空格
         const container = range.startContainer;
         if (container.nodeType === Node.TEXT_NODE && container.textContent) {
@@ -517,8 +625,6 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
             }
           }
 
-          console.log("Found", spacesToRemove, "spaces to remove");
-
           if (spacesToRemove > 0) {
             const newText = text.substring(0, offset - spacesToRemove) + text.substring(offset);
             container.textContent = newText;
@@ -526,29 +632,25 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
             range.setEnd(container, offset - spacesToRemove);
             selection.removeAllRanges();
             selection.addRange(range);
-            console.log("Manual removal completed, removed", spacesToRemove, "characters");
           }
         }
       }
     } catch (e) {
-      console.log("Unindent operation failed:", e);
+      // 忽略取消缩进操作失败
     }
   } else {
     // Tab: 增加缩进
-    console.log("Adding indentation");
-
     try {
       // 方法1: 使用execCommand命令
       if (document.execCommand) {
         const success = document.execCommand("insertText", false, "    ");
-        console.log("execCommand insertText result:", success);
         if (success) {
           triggerInputEvent(pageIndex);
           return;
         }
       }
     } catch (e) {
-      console.log("execCommand failed, using manual insertion:", e);
+      // 忽略execCommand失败
     }
 
     // 方法2: 手动插入文本节点
@@ -562,11 +664,7 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
       range.setEndAfter(textNode);
       selection.removeAllRanges();
       selection.addRange(range);
-
-      console.log("Manual text node insertion completed");
     } catch (e) {
-      console.log("Manual insertion failed:", e);
-
       // 方法3: 直接在pageRef上操作
       try {
         const pageEl = pageRefs.value[pageIndex];
@@ -576,10 +674,9 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
           const newContent = currentContent.slice(0, caretPos) + "&nbsp;&nbsp;&nbsp;&nbsp;" + currentContent.slice(caretPos);
           pageEl.innerHTML = newContent;
           setCaretPosition(pageEl, caretPos + 4);
-          console.log("Direct innerHTML manipulation completed");
         }
       } catch (e2) {
-        console.log("All methods failed:", e2);
+        // 忽略所有方法失败
       }
     }
   }
@@ -589,10 +686,8 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageIndex: number) {
 }
 
 function triggerInputEvent(pageIndex: number) {
-  setTimeout(() => {
-    const inputEvent = new Event("input", { bubbles: true });
-    pageRefs.value[pageIndex]?.dispatchEvent(inputEvent);
-  }, 0);
+  const inputEvent = new Event("input", { bubbles: true });
+  pageRefs.value[pageIndex]?.dispatchEvent(inputEvent);
 }
 
 const placeholder = computed(() => props.placeholder ?? "在这张纸上写点什么吧…");

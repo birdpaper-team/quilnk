@@ -6,7 +6,7 @@
     "jsx": "preserve",
     "moduleResolution": "node",
     "useDefineForClassFields": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "types": ["node"],
@@ -14,7 +14,8 @@
     "noImplicitAny": false,
     "baseUrl": ".",
     "lib": ["es2020", "dom"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmit": true
   },
   "include": [
     "demo/**/*.ts",
