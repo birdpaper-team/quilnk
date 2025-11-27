@@ -12,6 +12,19 @@ export function usePasteHandling() {
     const text = clipboardData.getData('text/plain');
     if (!text) return;
 
+    // 清理文本：统一换行符，删除多余空行
+    let cleanText = text
+      .replace(/\r\n/g, '\n') // 统一换行符
+      .replace(/\r/g, '\n'); // 统一换行符
+    
+    // 删除多余空行：将连续的换行符替换为单个换行符
+    cleanText = cleanText.replace(/\n{3,}/g, '\n\n');
+    
+    // 删除首尾空白
+    cleanText = cleanText.trim();
+
+    if (!cleanText) return;
+
     // 获取当前选择范围
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
@@ -22,9 +35,8 @@ export function usePasteHandling() {
     // 获取当前范围
     const range = selection.getRangeAt(0);
     
-    // 直接使用document.execCommand插入文本，保留原始格式
-    // 这是处理粘贴的最佳方式，因为它会自动处理换行和格式
-    document.execCommand('insertText', false, text);
+    // 直接使用document.execCommand插入清理后的文本
+    document.execCommand('insertText', false, cleanText);
 
     // 触发input事件以更新modelValue
     const target = event.target as HTMLDivElement;

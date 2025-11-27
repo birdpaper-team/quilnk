@@ -1,5 +1,12 @@
 <template>
   <div :class="clsBlockName">
+    <!-- 工具栏 -->
+    <EditorToolbar
+      @command="executeCommand"
+      @undo="undo"
+      @redo="redo"
+    />
+    
     <div class="quilnk-editor__stage">
       <div
         v-for="(page, index) in pages"
@@ -52,6 +59,7 @@ import { usePageManagement } from "./hooks/usePageManagement";
 import { useKeyboardEvents } from "./hooks/useKeyboardEvents";
 import { usePasteHandling } from "./hooks/usePasteHandling";
 import { useDataSync } from "./hooks/useDataSync";
+import EditorToolbar from "./components/EditorToolbar.vue";
 
 defineOptions({ name: "QuilnkEditor" });
 
@@ -150,6 +158,28 @@ onMounted(() => {
   // 设置modelValue监听
   setupModelValueWatch(props.modelValue || "");
 });
+
+// 执行编辑器命令
+function executeCommand(command: string) {
+  // 确保编辑器有焦点
+  const currentPageElement = pageRefs.value[currentPageIndex.value];
+  if (currentPageElement) {
+    currentPageElement.focus();
+  }
+  
+  // 获取当前选择
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
+    return;
+  }
+  
+  // 执行命令
+  document.execCommand(command, false);
+  
+  // 触发input事件以更新modelValue
+  const inputEvent = new Event('input', { bubbles: true });
+  currentPageElement?.dispatchEvent(inputEvent);
+}
 
 // 格式化页码
 function formatPageNumber(pageNumber: number, totalPages: number): string {
