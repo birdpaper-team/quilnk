@@ -47,7 +47,7 @@ export function useDataSync(
     // 创建当前状态的深拷贝
     const currentState: HistoryRecord = {
       pages: JSON.parse(JSON.stringify(pages.value)),
-      content: getAllContent(),
+      content: getContent(),
       caretPosition,
       currentPageIndex: currentPageIndex >= 0 ? currentPageIndex : 0
     };
@@ -63,11 +63,53 @@ export function useDataSync(
     }
   }
   // 收集所有页面内容
-  function getAllContent(): string {
+  function getContent(): string {
     return pages.value
       .map((page) => page.content)
       .filter((content) => content.trim() !== '')
       .join('\n\n---\n\n'); // 用分隔符区分页面
+  }
+  
+  // 设置编辑器内容
+  function setContent(content: string) {
+    if (!content) {
+      // 如果值为空，重置为单页空内容
+      pages.value = [{ id: `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, content: '' }];
+      pageRefs.value = [null];
+      
+      // 直接设置DOM内容
+      nextTick(() => {
+        pages.value.forEach((page, index) => {
+          if (pageRefs.value[index]) {
+            pageRefs.value[index].innerHTML = page.content;
+          }
+        });
+      });
+      return;
+    }
+    
+    // 如果当前内容与新值相同，不更新
+    const currentContent = getContent();
+    if (currentContent === content) {
+      return;
+    }
+    
+    // 分割新值为多页
+    const pageContents = content.split('\n\n---\n\n');
+    pages.value = pageContents.map((content, index) => ({
+      id: index < pages.value.length ? pages.value[index].id : `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      content: content.trim(),
+    }));
+    pageRefs.value = Array.from({ length: pages.value.length }, () => null);
+    
+    // 直接设置DOM内容
+    nextTick(() => {
+      pages.value.forEach((page, index) => {
+        if (pageRefs.value[index]) {
+          pageRefs.value[index].innerHTML = page.content;
+        }
+      });
+    });
   }
 
   // 初始化内容
@@ -114,7 +156,7 @@ export function useDataSync(
       }
 
       // 如果当前内容与新值相同，不更新
-      const currentContent = getAllContent();
+      const currentContent = getContent();
       if (currentContent === newValue) {
         return;
       }
@@ -350,11 +392,12 @@ export function useDataSync(
     }
 
     // 发送更新事件
-    emit('update:modelValue', getAllContent());
+    emit('update:modelValue', getContent());
   }
 
   return {
-    getAllContent,
+    getContent,
+    setContent,
     initializeContent,
     setupModelValueWatch,
     onInput,

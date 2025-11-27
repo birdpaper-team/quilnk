@@ -31,6 +31,10 @@
             @keydown="(event) => onKeyDown(event, index)"
             @keypress="(event) => onKeyPress(event, index)"
             @focus="setCurrentPage(index)" />
+          <!-- 页码显示 -->
+          <div class="quilnk-editor__page-number">
+            {{ formatPageNumber(index + 1, pages.length) }}
+          </div>
         </div>
       </div>
 
@@ -54,6 +58,7 @@ defineOptions({ name: "QuilnkEditor" });
 const props = defineProps<{
   modelValue?: string;
   placeholder?: string;
+  pageNumberFormat?: string;
 }>();
 
 const emit = defineEmits<{
@@ -83,7 +88,8 @@ const { onPaste } = usePasteHandling();
 
 // 使用数据同步hook
 const {
-  getAllContent,
+  getContent,
+  setContent,
   initializeContent,
   setupModelValueWatch,
   onInput,
@@ -95,42 +101,42 @@ const {
 const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo);
 
 // 包装addPage方法，添加事件触发
-function addPage(index?: number): number {
-  const insertIndex = addPageInternal(index);
-  
-  // 等待DOM更新后聚焦新页面
-  nextTick(() => {
-    focusPage(insertIndex);
-  });
-
-  emit("pageAdded", insertIndex);
-  emit("update:modelValue", getAllContent());
-
-  return insertIndex;
-}
-
-// 包装deletePage方法，添加确认和事件触发
-function deletePage(index: number): boolean {
-  // 确认删除
-  const confirmDelete = confirm(`确定要删除第 ${index + 1} 页吗？`);
-  if (!confirmDelete) {
-    return false;
-  }
-
-  const result = deletePageInternal(index);
-  if (result) {
-    // 聚焦到合适的页面
+  function addPage(index?: number): number {
+    const insertIndex = addPageInternal(index);
+    
+    // 等待DOM更新后聚焦新页面
     nextTick(() => {
-      const targetIndex = Math.min(index, pages.value.length - 1);
-      focusPage(targetIndex);
+      focusPage(insertIndex);
     });
 
-    emit("pageDeleted", index, pages.value.length);
-    emit("update:modelValue", getAllContent());
+    emit("pageAdded", insertIndex);
+    emit("update:modelValue", getContent());
+
+    return insertIndex;
   }
 
-  return result;
-}
+  // 包装deletePage方法，添加确认和事件触发
+  function deletePage(index: number): boolean {
+    // 确认删除
+    const confirmDelete = confirm(`确定要删除第 ${index + 1} 页吗？`);
+    if (!confirmDelete) {
+      return false;
+    }
+
+    const result = deletePageInternal(index);
+    if (result) {
+      // 聚焦到合适的页面
+      nextTick(() => {
+        const targetIndex = Math.min(index, pages.value.length - 1);
+        focusPage(targetIndex);
+      });
+
+      emit("pageDeleted", index, pages.value.length);
+      emit("update:modelValue", getContent());
+    }
+
+    return result;
+  }
 
 onMounted(() => {
   // 初始化内容
@@ -145,15 +151,26 @@ onMounted(() => {
   setupModelValueWatch(props.modelValue || "");
 });
 
+// 格式化页码
+function formatPageNumber(pageNumber: number, totalPages: number): string {
+  const format = props.pageNumberFormat || "第 {page} 页";
+  return format
+    .replace(/{page}/g, pageNumber.toString())
+    .replace(/{total}/g, totalPages.toString());
+}
+
 // 暴露组件方法
 defineExpose({
   addPage,
   deletePage,
   focusPage,
-  getAllContent,
+  getContent,
+  setContent,
   getPageCount,
-  getCurrentPageIndex
+  getCurrentPageIndex,
+  formatPageNumber
 });
 
 const placeholder = computed(() => props.placeholder ?? "在这张纸上写点什么吧…");
+
 </script>
