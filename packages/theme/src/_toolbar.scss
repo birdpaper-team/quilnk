@@ -17,10 +17,11 @@
 
   &__toolbar {
     @include flex(row, center, center);
+    gap: 4px;
     width: max-content;
     max-width: 800px;
     flex-shrink: 0; // 防止页面被压缩
-    padding: 0 8px;
+    padding: 4px 12px;
     background: var(--bp-gray-0);
     border-radius: 26px;
     border: $borderSize solid $borderColor-2;
@@ -48,7 +49,7 @@
   // 工具栏分组
   &__toolbar-group {
     @include flex(row, center, center);
-    gap: 2px;
+    gap: 4px;
     padding: 5px 10px;
 
     // 移动端样式调整
@@ -63,27 +64,31 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
     cursor: pointer;
+    border: $borderSize solid var(--bp-gray-0);
     transition: all 0.2s ease;
     color: var(--bp-gray-6);
 
     .bp-icon {
       fill: var(--bp-gray-6);
     }
-
     // 按钮悬停效果
     &:hover {
-      background: var(--bp-gray-4);
+      background: #f0f0f0;
       border-color: #d0d0d0;
     }
 
-    // 按钮激活效果
-    &:active {
-      background: #e0e0e0;
-      transform: scale(0.98);
+    // 按钮激活状态样式
+    &--active {
+      background: var(--bp-gray-2);
+      border: $borderSize solid var(--bp-gray-3);
+
+      .bp-icon {
+        fill: var(--bp-gray-9);
+      }
     }
 
     // 图标样式

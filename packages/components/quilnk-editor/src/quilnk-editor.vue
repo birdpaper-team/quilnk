@@ -5,7 +5,7 @@
         <!-- 页面工具栏，只在当前页聚焦时显示 -->
         <div class="quilnk-editor__toolbar-container">
           <transition name="toolbar-fade">
-            <EditorToolbar v-if="isToolbarVisible && index === currentPageIndex" @command="executeCommand" />
+            <EditorToolbar v-if="isToolbarVisible && index === currentPageIndex" :format="currentFormat" @command="executeCommand" />
           </transition>
         </div>
         <div class="quilnk-editor__page">
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, nextTick, ref } from "vue";
+import { computed, onMounted, nextTick, ref, watch } from "vue";
 import { usePageManagement } from "./hooks/usePageManagement";
 import { useKeyboardEvents } from "./hooks/useKeyboardEvents";
 import { usePasteHandling } from "./hooks/usePasteHandling";
@@ -63,6 +63,18 @@ const clsBlockName = "quilnk-editor";
 
 // 工具栏显示状态
 const isToolbarVisible = ref(false);
+
+// 当前文本格式状态
+const currentFormat = ref({
+  bold: false,
+  italic: false,
+  underline: false,
+  strikeThrough: false,
+  justifyLeft: false,
+  justifyCenter: false,
+  justifyRight: false,
+  justifyFull: false
+});
 
 // 使用页面管理hook
 const {
@@ -92,10 +104,28 @@ const { getContent, setContent, initializeContent, setupModelValueWatch, onInput
 // 使用键盘事件hook
 const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo);
 
-// 页面聚焦事件 - 显示工具栏
+// 检测当前选区的格式
+function detectCurrentFormat() {
+  const formatState = {
+    bold: document.queryCommandState('bold'),
+    italic: document.queryCommandState('italic'),
+    underline: document.queryCommandState('underline'),
+    strikeThrough: document.queryCommandState('strikeThrough'),
+    justifyLeft: document.queryCommandState('justifyLeft'),
+    justifyCenter: document.queryCommandState('justifyCenter'),
+    justifyRight: document.queryCommandState('justifyRight'),
+    justifyFull: document.queryCommandState('justifyFull')
+  };
+  
+  currentFormat.value = formatState;
+}
+
+// 页面聚焦事件 - 显示工具栏并检测格式
 function onPageFocus(index: number) {
   setCurrentPage(index);
   isToolbarVisible.value = true;
+  // 检测当前格式
+  detectCurrentFormat();
 }
 
 // 页面失焦事件 - 隐藏工具栏
@@ -103,11 +133,25 @@ function onPageBlur() {
   // 延迟检查，确保点击工具栏按钮时不会隐藏工具栏
   setTimeout(() => {
     // 检查是否有任何页面内容区域获得焦点
-    const hasFocus = Array.from(pageRefs.value).some((page) => document.activeElement === page);
+    const hasFocus = Array.from(pageRefs.value).some(page => 
+      document.activeElement === page
+    );
     if (!hasFocus) {
       isToolbarVisible.value = false;
     }
   }, 100);
+}
+
+// 监听选区变化，更新格式状态
+function setupSelectionListener() {
+  // 监听选择变化事件
+  document.addEventListener('selectionchange', detectCurrentFormat);
+  
+  // 监听鼠标按下事件，检测格式变化
+  document.addEventListener('mousedown', detectCurrentFormat);
+  
+  // 监听键盘事件，检测格式变化
+  document.addEventListener('keyup', detectCurrentFormat);
 }
 
 // 包装addPage方法，添加事件触发
@@ -159,6 +203,9 @@ onMounted(() => {
 
   // 设置modelValue监听
   setupModelValueWatch(props.modelValue || "");
+  
+  // 设置选区监听
+  setupSelectionListener();
 });
 
 // 执行编辑器命令
@@ -181,6 +228,9 @@ function executeCommand(command: string) {
   // 触发input事件以更新modelValue
   const inputEvent = new Event("input", { bubbles: true });
   currentPageElement?.dispatchEvent(inputEvent);
+  
+  // 更新格式状态
+  detectCurrentFormat();
 }
 
 // 格式化页码
