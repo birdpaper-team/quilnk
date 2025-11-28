@@ -10,18 +10,15 @@
     right: var(--line-margin);
     bottom: calc(var(--line-vertical-margin) + var(--page-number-height));
     outline: none;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     font-size: 16px;
     line-height: var(--line-height);
     color: #2c2c2c;
     word-break: break-word;
     caret-color: #1f6fff;
-    overflow: hidden; // 防止内容溢出到横线区域外
-    
-    // 关键：让文字基线精确对齐横线底部
+    overflow: hidden;
     display: block;
     padding: 0;
-    
+
     // 移动端样式调整
     @media (max-width: 768px) {
       font-size: 14px;
@@ -39,76 +36,100 @@
       height: var(--line-height);
     }
 
-    p { 
+    p {
       margin: 0;
       padding: 0;
       line-height: var(--line-height);
       min-height: var(--line-height);
       // 移除 flex 布局，使用 block 布局以便 text-align 生效
       display: block;
-      
+
       &:not(:last-child) {
         margin-bottom: 0;
       }
-      
+
       // 空段落也要占据行高
       &:empty {
         min-height: var(--line-height);
       }
-      
+
       // 对齐样式
-      &[align="left"], &[style*="text-align:left"], &[style*="text-align: left"] {
+      &[align="left"],
+      &[style*="text-align:left"],
+      &[style*="text-align: left"] {
         text-align: left;
       }
-      
-      &[align="center"], &[style*="text-align:center"], &[style*="text-align: center"] {
+
+      &[align="center"],
+      &[style*="text-align:center"],
+      &[style*="text-align: center"] {
         text-align: center;
       }
-      
-      &[align="right"], &[style*="text-align:right"], &[style*="text-align: right"] {
+
+      &[align="right"],
+      &[style*="text-align:right"],
+      &[style*="text-align: right"] {
         text-align: right;
       }
-      
-      &[align="justify"], &[style*="text-align:justify"], &[style*="text-align: justify"] {
+
+      &[align="justify"],
+      &[style*="text-align:justify"],
+      &[style*="text-align: justify"] {
         text-align: justify;
       }
     }
-    
+
     // 标题保持行对齐
-    h1, h2, h3, h4, h5, h6 { 
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       line-height: var(--line-height);
       margin: 0;
       padding: 0;
       font-weight: 600;
       min-height: var(--line-height);
       display: block;
-      
+
       // 对齐样式
-      &[align="left"], &[style*="text-align:left"], &[style*="text-align: left"] {
+      &[align="left"],
+      &[style*="text-align:left"],
+      &[style*="text-align: left"] {
         text-align: left;
       }
-      
-      &[align="center"], &[style*="text-align:center"], &[style*="text-align: center"] {
+
+      &[align="center"],
+      &[style*="text-align:center"],
+      &[style*="text-align: center"] {
         text-align: center;
       }
-      
-      &[align="right"], &[style*="text-align:right"], &[style*="text-align: right"] {
+
+      &[align="right"],
+      &[style*="text-align:right"],
+      &[style*="text-align: right"] {
         text-align: right;
       }
-      
-      &[align="justify"], &[style*="text-align:justify"], &[style*="text-align: justify"] {
+
+      &[align="justify"],
+      &[style*="text-align:justify"],
+      &[style*="text-align: justify"] {
         text-align: justify;
       }
     }
-    h3 { font-size: 16px; }
-    
+    h3 {
+      font-size: 16px;
+    }
+
     // 移除列表样式，因为不再支持列表功能
-    ul, ol {
+    ul,
+    ol {
       // 重置列表样式
       list-style: none;
       padding: 0;
       margin: 0;
-      
+
       li {
         // 重置列表项样式
         list-style: none;
@@ -117,8 +138,8 @@
         display: block;
       }
     }
-    
-    blockquote { 
+
+    blockquote {
       border-left: 2px solid #8aa9d3;
       margin: 0;
       padding-left: 12px;
@@ -127,35 +148,43 @@
       line-height: var(--line-height);
       min-height: var(--line-height);
       display: block;
-      
+
       // 对齐样式
-      &[align="left"], &[style*="text-align:left"], &[style*="text-align: left"] {
+      &[align="left"],
+      &[style*="text-align:left"],
+      &[style*="text-align: left"] {
         text-align: left;
       }
-      
-      &[align="center"], &[style*="text-align:center"], &[style*="text-align: center"] {
+
+      &[align="center"],
+      &[style*="text-align:center"],
+      &[style*="text-align: center"] {
         text-align: center;
       }
-      
-      &[align="right"], &[style*="text-align:right"], &[style*="text-align: right"] {
+
+      &[align="right"],
+      &[style*="text-align:right"],
+      &[style*="text-align: right"] {
         text-align: right;
       }
-      
-      &[align="justify"], &[style*="text-align:justify"], &[style*="text-align: justify"] {
+
+      &[align="justify"],
+      &[style*="text-align:justify"],
+      &[style*="text-align: justify"] {
         text-align: justify;
       }
     }
-    
-    a { 
-      color: #1f6fff; 
+
+    a {
+      color: #1f6fff;
       text-decoration: underline;
       text-decoration-thickness: 0.5px;
     }
-    
-    img { 
-      max-width: 100%; 
-      border-radius: 2px; 
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+
+    img {
+      max-width: 100%;
+      border-radius: 2px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
       margin: 0;
       display: block;
     }
@@ -170,12 +199,12 @@
       align-items: flex-end;
       min-height: var(--line-height);
     }
-    
+
     // 确保焦点时保持对齐
     &:focus {
       outline: none;
     }
-    
+
     // 处理 contenteditable 的默认行为
     div {
       line-height: var(--line-height);
@@ -183,40 +212,56 @@
       display: block;
       margin: 0;
       padding: 0;
-      
+
       // 对齐样式
-      &[align="left"], &[style*="text-align:left"], &[style*="text-align: left"] {
+      &[align="left"],
+      &[style*="text-align:left"],
+      &[style*="text-align: left"] {
         text-align: left;
       }
-      
-      &[align="center"], &[style*="text-align:center"], &[style*="text-align: center"] {
+
+      &[align="center"],
+      &[style*="text-align:center"],
+      &[style*="text-align: center"] {
         text-align: center;
       }
-      
-      &[align="right"], &[style*="text-align:right"], &[style*="text-align: right"] {
+
+      &[align="right"],
+      &[style*="text-align:right"],
+      &[style*="text-align: right"] {
         text-align: right;
       }
-      
-      &[align="justify"], &[style*="text-align:justify"], &[style*="text-align: justify"] {
+
+      &[align="justify"],
+      &[style*="text-align:justify"],
+      &[style*="text-align: justify"] {
         text-align: justify;
       }
     }
-    
+
     // 确保所有元素都支持对齐样式
     * {
-      &[align="left"], &[style*="text-align:left"], &[style*="text-align: left"] {
+      &[align="left"],
+      &[style*="text-align:left"],
+      &[style*="text-align: left"] {
         text-align: left;
       }
-      
-      &[align="center"], &[style*="text-align:center"], &[style*="text-align: center"] {
+
+      &[align="center"],
+      &[style*="text-align:center"],
+      &[style*="text-align: center"] {
         text-align: center;
       }
-      
-      &[align="right"], &[style*="text-align:right"], &[style*="text-align: right"] {
+
+      &[align="right"],
+      &[style*="text-align:right"],
+      &[style*="text-align: right"] {
         text-align: right;
       }
-      
-      &[align="justify"], &[style*="text-align:justify"], &[style*="text-align: justify"] {
+
+      &[align="justify"],
+      &[style*="text-align:justify"],
+      &[style*="text-align: justify"] {
         text-align: justify;
       }
     }
@@ -231,12 +276,18 @@
       -webkit-user-select: text;
       user-select: text;
     }
-    
+
     // 移动端字体大小调整
     &__content {
-      h1 { font-size: 18px; }
-      h2 { font-size: 16px; }
-      h3 { font-size: 14px; }
+      h1 {
+        font-size: 18px;
+      }
+      h2 {
+        font-size: 16px;
+      }
+      h3 {
+        font-size: 14px;
+      }
     }
   }
 

@@ -1,0 +1,29 @@
+@font-face {
+  font-family: "Yrdzst-bold";
+  src: url("./yrdzst/yrdzst-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Yrdzst-extralight";
+  src: url("./yrdzst/yrdzst-Extralight.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Yrdzst-regular";
+  src: url("./yrdzst/yrdzst-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Yrdzst-semibold";
+  src: url("./yrdzst/yrdzst-Semibold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Yrdzst-light";
+  src: url("./yrdzst/yrdzst-Light.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Yrdzst-medium";
+  src: url("./yrdzst/yrdzst-Medium.ttf") format("truetype");
+}

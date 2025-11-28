@@ -11,7 +11,7 @@
         <div class="quilnk-editor__page">
           <div
             :ref="(el) => setPageRef(el as HTMLDivElement, index)"
-            class="quilnk-editor__content"
+            class="quilnk-editor__content font-yrd"
             contenteditable="true"
             spellcheck="true"
             :data-placeholder="index === 0 && pages.length === 1 ? placeholder : ''"

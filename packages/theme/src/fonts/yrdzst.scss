@@ -1,0 +1,30 @@
+// 使用Vite的特殊语法来处理字体文件，确保路径正确
+@font-face {
+  font-family: "Yrdzst-bold";
+  src: url('~/packages/theme/src/fonts/yrdzst/yrdzst-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "Yrdzst-extralight";
+  src: url('~/packages/theme/src/fonts/yrdzst/yrdzst-Extralight.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "Yrdzst-regular";
+  src: url('~/packages/theme/src/fonts/yrdzst/yrdzst-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "Yrdzst-semibold";
+  src: url('~/packages/theme/src/fonts/yrdzst/yrdzst-Semibold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "Yrdzst-light";
+  src: url('~/packages/theme/src/fonts/yrdzst/yrdzst-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "Yrdzst-medium";
+  src: url('~/packages/theme/src/fonts/yrdzst/yrdzst-Medium.ttf') format('truetype');
+}
