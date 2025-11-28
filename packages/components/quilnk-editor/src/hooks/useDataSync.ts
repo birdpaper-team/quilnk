@@ -186,119 +186,65 @@ export function useDataSync(
   }
 
   // 分割内容到新页面
-  function splitContentToNewPage(pageIndex: number) {
+  function splitContentToNewPage(pageIndex: number, currentPageElement?: HTMLDivElement) {
     const currentPage = pages.value[pageIndex];
-    const currentPageElement = pageRefs.value[pageIndex];
+    const pageElement = currentPageElement || pageRefs.value[pageIndex];
     
-    if (!currentPageElement) return;
+    if (!pageElement) return;
 
-    // 获取当前光标位置
-    const caretPosition = getCaretPosition(currentPageElement);
-    
-    // 尝试找到合适的分割点
-    let splitIndex = caretPosition;
-    let textContent = currentPageElement.textContent || '';
-    
-    // 从光标位置向前查找换行符或空格，作为分割点
-    for (let i = caretPosition; i > 0; i--) {
-      if (textContent[i] === '\n' || textContent[i] === ' ') {
-        splitIndex = i + 1;
-        break;
-      }
+    // 检查内容是否超出页面
+    if (!isContentOverflowing(pageElement)) {
+      return;
     }
     
-    // 如果没有找到合适的分割点，就从光标位置分割
+    // 获取当前页面的所有子节点
+    const childNodes = Array.from(pageElement.childNodes);
     
-    // 创建一个临时元素来处理HTML内容
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = currentPageElement.innerHTML;
+    // 创建新页面
+    const newPage: Page = {
+      id: `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      content: '',
+    };
     
-    // 分割HTML内容
-    let currentLength = 0;
-    let splitNode: Node | null = null;
-    let splitOffset = 0;
+    // 插入新页面
+    pages.value.splice(pageIndex + 1, 0, newPage);
+    pageRefs.value.splice(pageIndex + 1, 0, null);
     
-    // 递归查找分割点
-    function findSplitPoint(node: Node): boolean {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const nodeLength = node.textContent?.length || 0;
-        if (currentLength + nodeLength > splitIndex) {
-          splitNode = node;
-          splitOffset = splitIndex - currentLength;
-          return true;
-        }
-        currentLength += nodeLength;
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        for (let i = 0; i < node.childNodes.length; i++) {
-          if (findSplitPoint(node.childNodes[i])) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-    
-    findSplitPoint(tempDiv);
-    
-    if (splitNode) {
-      // 创建新的内容片段
-      const newContentDiv = document.createElement('div');
-      
-      // 分割文本节点
-      if (splitNode.nodeType === Node.TEXT_NODE) {
-        const textNode = splitNode as Text;
-        const remainingText = textNode.textContent?.slice(splitOffset) || '';
-        textNode.textContent = textNode.textContent?.slice(0, splitOffset) || '';
+    // 更新DOM内容
+    nextTick(() => {
+      const newPageElement = pageRefs.value[pageIndex + 1];
+      if (newPageElement && pageElement) {
+        // 检查是否是连续换行导致的溢出
+        const isLineBreakOverflow = childNodes.length > 0 && 
+          childNodes.every(node => 
+            node.nodeType === Node.TEXT_NODE && 
+            (node.textContent || '').trim() === ''
+          );
         
-        // 将剩余文本添加到新页面
-        newContentDiv.appendChild(document.createTextNode(remainingText));
-      }
-      
-      // 移动剩余的节点
-      while (splitNode?.nextSibling) {
-        newContentDiv.appendChild(splitNode.nextSibling);
-      }
-      
-      // 移动父节点的剩余子节点
-      let parent = splitNode?.parentNode;
-      while (parent && parent !== tempDiv) {
-        while (parent?.nextSibling) {
-          newContentDiv.appendChild(parent.nextSibling);
-        }
-        parent = parent.parentNode;
-      }
-      
-      // 检查新内容是否为空，如果为空则不创建新页面
-      const newContent = newContentDiv.innerHTML.trim();
-      if (newContent) {
-        // 创建新页面
-        const newPage: Page = {
-          id: `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          content: '',
-        };
-        
-        // 插入新页面
-        pages.value.splice(pageIndex + 1, 0, newPage);
-        pageRefs.value.splice(pageIndex + 1, 0, null);
-        
-        // 更新DOM内容
-        nextTick(() => {
-          const newPageElement = pageRefs.value[pageIndex + 1];
-          if (newPageElement && currentPageElement) {
-            // 更新页面内容
-            currentPageElement.innerHTML = tempDiv.innerHTML;
-            newPageElement.innerHTML = newContentDiv.innerHTML;
+        if (isLineBreakOverflow) {
+          // 如果是连续换行导致的溢出，保留当前页面的内容
+          // 只在新页面添加一个空的换行符
+          newPageElement.innerHTML = '<br>';
+          
+          // 更新页面数据
+          pages.value[pageIndex + 1].content = '<br>';
+        } else {
+          // 否则，将最后一个节点移动到新页面
+          if (childNodes.length > 0) {
+            const lastNode = childNodes[childNodes.length - 1];
+            newPageElement.appendChild(lastNode.cloneNode(true));
+            lastNode.remove();
             
             // 更新页面数据
-            pages.value[pageIndex].content = currentPageElement.innerHTML;
+            pages.value[pageIndex].content = pageElement.innerHTML;
             pages.value[pageIndex + 1].content = newPageElement.innerHTML;
-            
-            // 聚焦到新页面的开头
-            focusNewPage(pageIndex + 1);
           }
-        });
+        }
+        
+        // 聚焦到新页面的开头
+        focusNewPage(pageIndex + 1);
       }
-    }
+    });
   }
   
   // 聚焦到新页面
@@ -387,8 +333,9 @@ export function useDataSync(
     pages.value[pageIndex].content = target.innerHTML;
 
     // 检测内容是否超出页面
+    // 当内容超出页面时，总是尝试分割内容到新页面
     if (isContentOverflowing(target)) {
-      splitContentToNewPage(pageIndex);
+      splitContentToNewPage(pageIndex, target);
     }
 
     // 发送更新事件
