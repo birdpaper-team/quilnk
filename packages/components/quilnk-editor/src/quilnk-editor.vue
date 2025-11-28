@@ -1,29 +1,18 @@
 <template>
   <div :class="clsBlockName">
-    <!-- 工具栏 -->
-    <EditorToolbar
-      @command="executeCommand"
-      @undo="undo"
-      @redo="redo"
-    />
     
     <div class="quilnk-editor__stage">
-      <div
-        v-for="(page, index) in pages"
-        :key="`page-${page.id}`"
-        class="quilnk-editor__paper"
-        role="region"
-        :aria-label="`信纸第${index + 1}页`">
-        <div class="quilnk-editor__page-header">
-          <span class="quilnk-editor__page-number">第 {{ index + 1 }} 页</span>
-          <button
-            v-if="pages.length > 1"
-            class="quilnk-editor__delete-btn"
-            type="button"
-            :aria-label="`删除第${index + 1}页`"
-            @click="deletePage(index)">
-            ×
-          </button>
+      <div v-for="(page, index) in pages" :key="`page-${page.id}`" class="quilnk-editor__paper">
+        <!-- 页面工具栏，只在当前页聚焦时显示 -->
+        <div class="quilnk-editor__toolbar-container">
+          <transition name="toolbar-fade">
+            <EditorToolbar 
+              v-if="isToolbarVisible && index === currentPageIndex" 
+              @command="executeCommand" 
+              @undo="undo" 
+              @redo="redo" 
+            />
+          </transition>
         </div>
         <div class="quilnk-editor__page">
           <div
@@ -37,7 +26,9 @@
             @paste="(event) => onPaste(event, index)"
             @keydown="(event) => onKeyDown(event, index)"
             @keypress="(event) => onKeyPress(event, index)"
-            @focus="setCurrentPage(index)" />
+            @focus="onPageFocus(index)"
+            @blur="onPageBlur"
+          />
           <!-- 页码显示 -->
           <div class="quilnk-editor__page-number">
             {{ formatPageNumber(index + 1, pages.length) }}
@@ -54,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, nextTick } from "vue";
+import { computed, onMounted, nextTick, ref } from "vue";
 import { usePageManagement } from "./hooks/usePageManagement";
 import { useKeyboardEvents } from "./hooks/useKeyboardEvents";
 import { usePasteHandling } from "./hooks/usePasteHandling";
@@ -77,6 +68,9 @@ const emit = defineEmits<{
 
 const clsBlockName = "quilnk-editor";
 
+// 工具栏显示状态
+const isToolbarVisible = ref(false);
+
 // 使用页面管理hook
 const {
   pages,
@@ -88,73 +82,90 @@ const {
   deletePage: deletePageInternal,
   focusPage,
   getPageCount,
-  getCurrentPageIndex
+  getCurrentPageIndex,
 } = usePageManagement(props.modelValue || "");
 
 // 使用粘贴处理hook
 const { onPaste } = usePasteHandling();
 
 // 使用数据同步hook
-const {
-  getContent,
-  setContent,
-  initializeContent,
-  setupModelValueWatch,
-  onInput,
-  undo,
-  redo
-} = useDataSync(pages, pageRefs, props.modelValue || "", emit);
+const { getContent, setContent, initializeContent, setupModelValueWatch, onInput, undo, redo } = useDataSync(
+  pages,
+  pageRefs,
+  props.modelValue || "",
+  emit
+);
 
 // 使用键盘事件hook
 const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo);
 
+// 页面聚焦事件 - 显示工具栏
+function onPageFocus(index: number) {
+  setCurrentPage(index);
+  isToolbarVisible.value = true;
+}
+
+// 页面失焦事件 - 隐藏工具栏
+function onPageBlur() {
+  // 延迟检查，确保点击工具栏按钮时不会隐藏工具栏
+  setTimeout(() => {
+    // 检查是否有任何页面内容区域获得焦点
+    const hasFocus = Array.from(pageRefs.value).some(page => 
+      document.activeElement === page
+    );
+    if (!hasFocus) {
+      isToolbarVisible.value = false;
+    }
+  }, 100);
+}
+
 // 包装addPage方法，添加事件触发
-  function addPage(index?: number): number {
-    const insertIndex = addPageInternal(index);
-    
-    // 等待DOM更新后聚焦新页面
+function addPage(index?: number): number {
+  const insertIndex = addPageInternal(index);
+
+  // 等待DOM更新后聚焦新页面
+  nextTick(() => {
+    focusPage(insertIndex);
+  });
+
+  emit("pageAdded", insertIndex);
+  emit("update:modelValue", getContent());
+
+  return insertIndex;
+}
+
+// 包装deletePage方法，添加确认和事件触发
+function deletePage(index: number): boolean {
+  // 确认删除
+  const confirmDelete = confirm(`确定要删除第 ${index + 1} 页吗？`);
+  if (!confirmDelete) {
+    return false;
+  }
+
+  const result = deletePageInternal(index);
+  if (result) {
+    // 聚焦到合适的页面
     nextTick(() => {
-      focusPage(insertIndex);
+      const targetIndex = Math.min(index, pages.value.length - 1);
+      focusPage(targetIndex);
     });
 
-    emit("pageAdded", insertIndex);
+    emit("pageDeleted", index, pages.value.length);
     emit("update:modelValue", getContent());
-
-    return insertIndex;
   }
 
-  // 包装deletePage方法，添加确认和事件触发
-  function deletePage(index: number): boolean {
-    // 确认删除
-    const confirmDelete = confirm(`确定要删除第 ${index + 1} 页吗？`);
-    if (!confirmDelete) {
-      return false;
-    }
-
-    const result = deletePageInternal(index);
-    if (result) {
-      // 聚焦到合适的页面
-      nextTick(() => {
-        const targetIndex = Math.min(index, pages.value.length - 1);
-        focusPage(targetIndex);
-      });
-
-      emit("pageDeleted", index, pages.value.length);
-      emit("update:modelValue", getContent());
-    }
-
-    return result;
-  }
+  return result;
+}
 
 onMounted(() => {
   // 初始化内容
   initializeContent();
-  
+
   // 聚焦第一页
   nextTick(() => {
     focusPage(0);
   });
-  
+
   // 设置modelValue监听
   setupModelValueWatch(props.modelValue || "");
 });
@@ -166,27 +177,25 @@ function executeCommand(command: string) {
   if (currentPageElement) {
     currentPageElement.focus();
   }
-  
+
   // 获取当前选择
   const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0) {
     return;
   }
-  
+
   // 执行命令
   document.execCommand(command, false);
-  
+
   // 触发input事件以更新modelValue
-  const inputEvent = new Event('input', { bubbles: true });
+  const inputEvent = new Event("input", { bubbles: true });
   currentPageElement?.dispatchEvent(inputEvent);
 }
 
 // 格式化页码
 function formatPageNumber(pageNumber: number, totalPages: number): string {
   const format = props.pageNumberFormat || "第 {page} 页";
-  return format
-    .replace(/{page}/g, pageNumber.toString())
-    .replace(/{total}/g, totalPages.toString());
+  return format.replace(/{page}/g, pageNumber.toString()).replace(/{total}/g, totalPages.toString());
 }
 
 // 暴露组件方法
@@ -198,9 +207,8 @@ defineExpose({
   setContent,
   getPageCount,
   getCurrentPageIndex,
-  formatPageNumber
+  formatPageNumber,
 });
 
 const placeholder = computed(() => props.placeholder ?? "在这张纸上写点什么吧…");
-
 </script>

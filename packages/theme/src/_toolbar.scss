@@ -1,17 +1,33 @@
 @use "mixins/mixins.scss" as *;
+@use "common/design.scss" as *;
 
 // 工具栏
 @include b("editor") {
-  &__toolbar {
+  // 工具栏容器 - 用于将工具栏定位在每个页面上方
+  &__toolbar-container {
+    width: 100%;
     display: flex;
-    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 14px;
+    left: 0;
+    z-index: 10;
+    pointer-events: none; // 确保容器不影响鼠标事件
+  }
+
+  &__toolbar {
+    @include flex(row, center, center);
     gap: 10px;
-    padding: 10px 20px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-    
+    width: 90%;
+    max-width: 800px;
+    flex-shrink: 0; // 防止页面被压缩
+    padding: 2px 20px;
+    background: var(--bp-gray-0);
+    border-radius: 26px;
+    border: $borderSize solid $borderColor-2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    pointer-events: auto; // 确保工具栏本身可以响应鼠标事件
+
     // 移动端样式调整
     @media (max-width: 768px) {
       padding: 8px 15px;
@@ -19,27 +35,32 @@
       flex-wrap: wrap;
     }
   }
-  
+
+  // 工具栏过渡动画
+  .toolbar-fade-enter-active,
+  .toolbar-fade-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .toolbar-fade-enter-from,
+  .toolbar-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
   // 工具栏分组
   &__toolbar-group {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    @include flex(row, center, center);
+    gap: 4px;
     padding: 5px 10px;
-    border-right: 1px solid #e0e0e0;
-    
-    // 最后一个分组没有右边框
-    &:last-child {
-      border-right: none;
-    }
-    
+
     // 移动端样式调整
     @media (max-width: 768px) {
       padding: 3px 8px;
       gap: 3px;
     }
   }
-  
+
   // 工具栏按钮
   &__toolbar-btn {
     display: flex;
@@ -47,36 +68,34 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid #e0e0e0;
-    background: white;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: #333;
-    
+    color: var(--bp-gray-6);
+
     // 按钮悬停效果
     &:hover {
       background: #f0f0f0;
       border-color: #d0d0d0;
     }
-    
+
     // 按钮激活效果
     &:active {
       background: #e0e0e0;
       transform: scale(0.98);
     }
-    
+
     // 图标样式
     svg {
       width: 16px;
       height: 16px;
     }
-    
+
     // 移动端样式调整
     @media (max-width: 768px) {
       width: 28px;
       height: 28px;
-      
+
       svg {
         width: 14px;
         height: 14px;
