@@ -66,8 +66,7 @@ export function useDataSync(
   function getContent(): string {
     return pages.value
       .map((page) => page.content)
-      .filter((content) => content.trim() !== '')
-      .join('\n\n---\n\n'); // 用分隔符区分页面
+      .join('\n\n---\n\n'); // 用分隔符区分页面，保留所有页面，包括空页面
   }
   
   // 设置编辑器内容
@@ -197,8 +196,11 @@ export function useDataSync(
       return;
     }
     
-    // 获取当前页面的所有子节点
-    const childNodes = Array.from(pageElement.childNodes);
+    // 检查是否已经创建了新页面，防止重复创建
+    const hasNextPage = pageIndex < pages.value.length - 1;
+    if (hasNextPage) {
+      return;
+    }
     
     // 创建新页面
     const newPage: Page = {
@@ -213,33 +215,12 @@ export function useDataSync(
     // 更新DOM内容
     nextTick(() => {
       const newPageElement = pageRefs.value[pageIndex + 1];
-      if (newPageElement && pageElement) {
-        // 检查是否是连续换行导致的溢出
-        const isLineBreakOverflow = childNodes.length > 0 && 
-          childNodes.every(node => 
-            node.nodeType === Node.TEXT_NODE && 
-            (node.textContent || '').trim() === ''
-          );
+      if (newPageElement) {
+        // 新页面初始化为空，确保只有一行
+        newPageElement.innerHTML = '';
         
-        if (isLineBreakOverflow) {
-          // 如果是连续换行导致的溢出，保留当前页面的内容
-          // 只在新页面添加一个空的换行符
-          newPageElement.innerHTML = '<br>';
-          
-          // 更新页面数据
-          pages.value[pageIndex + 1].content = '<br>';
-        } else {
-          // 否则，将最后一个节点移动到新页面
-          if (childNodes.length > 0) {
-            const lastNode = childNodes[childNodes.length - 1];
-            newPageElement.appendChild(lastNode.cloneNode(true));
-            lastNode.remove();
-            
-            // 更新页面数据
-            pages.value[pageIndex].content = pageElement.innerHTML;
-            pages.value[pageIndex + 1].content = newPageElement.innerHTML;
-          }
-        }
+        // 更新页面数据
+        pages.value[pageIndex + 1].content = '';
         
         // 聚焦到新页面的开头
         focusNewPage(pageIndex + 1);

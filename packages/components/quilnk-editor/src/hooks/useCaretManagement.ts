@@ -54,73 +54,10 @@ export function setCaretPosition(element: HTMLElement, offset: number) {
   
   if (!sel) return;
 
-  // 处理空元素的情况
-  if (!element.firstChild) {
-    const textNode = document.createTextNode('');
-    element.appendChild(textNode);
-    range.setStart(textNode, 0);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
-    return;
-  }
-
-  let currentOffset = 0;
-  let found = false;
-
-  // 递归查找正确的文本节点和偏移量
-  function findTextNode(node: Node): boolean {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const textLength = node.textContent?.length || 0;
-      
-      if (currentOffset + textLength >= offset) {
-        const nodeOffset = Math.max(0, offset - currentOffset);
-        range.setStart(node, nodeOffset);
-        range.collapse(true);
-        return true;
-      }
-      currentOffset += textLength;
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      // 遍历子节点
-      for (let i = 0; i < node.childNodes.length; i++) {
-        if (findTextNode(node.childNodes[i])) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // 如果没有找到合适的位置，将光标放在最后
-  if (!findTextNode(element)) {
-    // 找到最后一个文本节点
-    let lastTextNode: Node | null = null;
-    
-    function findLastTextNode(node: Node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        lastTextNode = node;
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        for (let i = node.childNodes.length - 1; i >= 0; i--) {
-          findLastTextNode(node.childNodes[i]);
-          if (lastTextNode) break;
-        }
-      }
-    }
-    
-    findLastTextNode(element);
-    
-    if (lastTextNode) {
-      const textLength = lastTextNode.textContent?.length || 0;
-      range.setStart(lastTextNode, textLength);
-    } else {
-      // 如果没有文本节点，创建一个
-      const textNode = document.createTextNode('');
-      element.appendChild(textNode);
-      range.setStart(textNode, 0);
-    }
-    range.collapse(true);
-  }
-
+  // 直接将范围设置到元素的开头，不创建任何额外节点
+  range.selectNodeContents(element);
+  range.collapse(true);
+  
   sel.removeAllRanges();
   sel.addRange(range);
 }

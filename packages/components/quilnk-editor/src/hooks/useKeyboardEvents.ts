@@ -13,6 +13,17 @@ function insertLineBreak(pageRefs: (HTMLDivElement | null)[], pageIndex: number)
     return;
   }
 
+  const pageEl = pageRefs[pageIndex];
+  if (!pageEl) return;
+
+  // 检查当前页面是否已经满了
+  const isOverflowing = pageEl.scrollHeight > pageEl.clientHeight;
+  
+  // 如果页面已经满了，不要插入换行符，让onInput事件处理分页
+  if (isOverflowing) {
+    return;
+  }
+
   const range = selection.getRangeAt(0);
 
   try {
@@ -59,18 +70,15 @@ function insertLineBreak(pageRefs: (HTMLDivElement | null)[], pageIndex: number)
   } catch (e) {
     // 方法3: 使用innerHTML直接操作
     try {
-      const pageEl = pageRefs[pageIndex];
-      if (pageEl) {
-        const caretPos = getCaretPosition(pageEl);
-        const currentContent = pageEl.innerHTML;
+      const caretPos = getCaretPosition(pageEl);
+      const currentContent = pageEl.innerHTML;
 
-        // 在光标位置插入br标签
-        const newContent = currentContent.slice(0, caretPos) + '<br>' + currentContent.slice(caretPos);
-        pageEl.innerHTML = newContent;
+      // 在光标位置插入br标签
+      const newContent = currentContent.slice(0, caretPos) + '<br>' + currentContent.slice(caretPos);
+      pageEl.innerHTML = newContent;
 
-        // 设置光标位置到br标签后
-        setCaretPosition(pageEl, caretPos + 4); // <br>标签长度为4
-      }
+      // 设置光标位置到br标签后
+      setCaretPosition(pageEl, caretPos + 4); // <br>标签长度为4
     } catch (e2) {
       // 忽略所有换行方法失败
     }
@@ -210,7 +218,12 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageRefs: (HTMLDivElement 
   triggerInputEvent(pageRefs, pageIndex);
 }
 
-export function useKeyboardEvents(pageRefs: (HTMLDivElement | null)[], undo?: () => void, redo?: () => void) {
+export function useKeyboardEvents(
+  pageRefs: (HTMLDivElement | null)[], 
+  undo?: () => void, 
+  redo?: () => void,
+  deletePage?: (index: number) => boolean
+) {
   // 处理键盘按下事件
   function onKeyDown(event: KeyboardEvent, pageIndex: number) {
     // 处理常用快捷键
@@ -276,8 +289,48 @@ export function useKeyboardEvents(pageRefs: (HTMLDivElement | null)[], undo?: ()
       return false;
     }
 
-    // 允许删除键的默认行为
+    // 处理删除键 - 自动删除空白页
     if (event.key === 'Backspace' || event.key === 'Delete') {
+      const pageElement = pageRefs[pageIndex];
+      if (pageElement) {
+        // 检查当前页面是否为空
+        // 更宽松的空页面检测条件
+        const textContent = pageElement.textContent || '';
+        const innerHTML = pageElement.innerHTML || '';
+        const isEmpty = textContent.trim() === '' && 
+                       (innerHTML.trim() === '' || 
+                        innerHTML.trim() === '<br>' || 
+                        innerHTML.trim() === '<br/>' || 
+                        innerHTML.trim() === '<br />');
+        
+        // 如果页面为空，且不是第一页，且有删除页面的函数
+        if (isEmpty && pageIndex > 0 && deletePage) {
+          // 阻止默认行为
+          event.preventDefault();
+          event.stopPropagation();
+          
+          // 删除当前页面
+          const success = deletePage(pageIndex);
+          if (success) {
+            // 聚焦到上一页
+            const prevPageElement = pageRefs[pageIndex - 1];
+            if (prevPageElement) {
+              prevPageElement.focus();
+              // 将光标设置到上一页的末尾
+              const range = document.createRange();
+              const sel = window.getSelection();
+              if (sel) {
+                range.selectNodeContents(prevPageElement);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+              }
+            }
+          }
+          return false;
+        }
+      }
+      // 允许默认的删除行为
       return true;
     }
 
