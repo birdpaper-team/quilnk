@@ -6,7 +6,7 @@ function triggerInputEvent(pageRefs: (HTMLDivElement | null)[], pageIndex: numbe
   pageRefs[pageIndex]?.dispatchEvent(inputEvent);
 }
 
-// 插入换行
+// 插入换行 - 创建p标签
 function insertLineBreak(pageRefs: (HTMLDivElement | null)[], pageIndex: number) {
   const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0) {
@@ -25,60 +25,72 @@ function insertLineBreak(pageRefs: (HTMLDivElement | null)[], pageIndex: number)
   }
 
   const range = selection.getRangeAt(0);
+  const paragraph = getOrCreateParagraph(range, pageEl);
 
   try {
-    // 方法1: 使用execCommand插入换行
-    if (document.execCommand) {
-      const success = document.execCommand('insertLineBreak', false);
-      if (success) {
-        triggerInputEvent(pageRefs, pageIndex);
-        return;
+    if (paragraph) {
+      // 如果在段落内，将段落分割成两个p标签
+      const newParagraph = document.createElement('p');
+      
+      // 保存当前段落的剩余内容
+      const remainingContent = paragraph.cloneNode(true) as HTMLElement;
+      remainingContent.innerHTML = '';
+      
+      // 将光标后的内容移动到新段落
+      const afterRange = document.createRange();
+      afterRange.setStart(range.endContainer, range.endOffset);
+      afterRange.setEndAfter(paragraph.lastChild as Node);
+      
+      const fragment = afterRange.extractContents();
+      newParagraph.appendChild(fragment);
+      
+      // 在当前段落后面插入新段落
+      paragraph.parentNode?.insertBefore(newParagraph, paragraph.nextSibling);
+      
+      // 清除当前段落的空内容
+      if (paragraph.textContent?.trim() === '') {
+        paragraph.innerHTML = '';
       }
-
-      // 如果insertLineBreak不支持，尝试insertHTML
-      const success2 = document.execCommand('insertHTML', false, '<br>');
-      if (success2) {
-        triggerInputEvent(pageRefs, pageIndex);
-        return;
-      }
+      
+      // 设置光标到新段落的开头
+      const newRange = document.createRange();
+      newRange.setStart(newParagraph, 0);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    } else {
+      // 如果不在段落内，创建一个新的p标签
+      const newParagraph = document.createElement('p');
+      
+      // 插入新段落
+      pageEl.appendChild(newParagraph);
+      
+      // 设置光标到新段落的开头
+      const newRange = document.createRange();
+      newRange.setStart(newParagraph, 0);
+      newRange.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
     }
   } catch (e) {
-    // 忽略execCommand方法失败
-  }
-
-  // 方法2: 手动插入br标签
-  try {
-    // 删除选中的内容（如果有）
-    if (!range.collapsed) {
-      range.deleteContents();
-    }
-
-    // 创建换行元素
-    const br = document.createElement('br');
-
-    // 插入换行元素
-    range.insertNode(br);
-
-    // 创建一个新的范围，设置在br之后
-    const newRange = document.createRange();
-    newRange.setStartAfter(br);
-    newRange.collapse(true);
-
-    // 更新选择
-    selection.removeAllRanges();
-    selection.addRange(newRange);
-  } catch (e) {
-    // 方法3: 使用innerHTML直接操作
+    // 备用方案：使用execCommand
     try {
-      const caretPos = getCaretPosition(pageEl);
-      const currentContent = pageEl.innerHTML;
-
-      // 在光标位置插入br标签
-      const newContent = currentContent.slice(0, caretPos) + '<br>' + currentContent.slice(caretPos);
-      pageEl.innerHTML = newContent;
-
-      // 设置光标位置到br标签后
-      setCaretPosition(pageEl, caretPos + 4); // <br>标签长度为4
+      if (document.execCommand) {
+        // 先确保当前有p标签
+        ensureParagraphs(pageEl);
+        
+        // 使用insertParagraph命令创建新段落
+        const success = document.execCommand('insertParagraph', false);
+        if (success) {
+          // 修复insertParagraph可能创建的div标签为p标签
+          const currentParagraph = getOrCreateParagraph(selection.getRangeAt(0), pageEl);
+          if (currentParagraph && currentParagraph.tagName.toLowerCase() !== 'p') {
+            const pTag = document.createElement('p');
+            pTag.innerHTML = currentParagraph.innerHTML;
+            currentParagraph.parentNode?.replaceChild(pTag, currentParagraph);
+          }
+        }
+      }
     } catch (e2) {
       // 忽略所有换行方法失败
     }
@@ -88,6 +100,98 @@ function insertLineBreak(pageRefs: (HTMLDivElement | null)[], pageIndex: number)
   triggerInputEvent(pageRefs, pageIndex);
 }
 
+// 确保内容使用p标签包裹
+function ensureParagraphs(pageElement: HTMLElement) {
+  // 如果页面为空，创建一个空的p标签
+  if (!pageElement.textContent?.trim() && pageElement.innerHTML.trim() === '') {
+    const pTag = document.createElement('p');
+    pageElement.appendChild(pTag);
+    return;
+  }
+  
+  // 检查是否已经有p标签
+  let hasParagraphs = false;
+  
+  // 遍历所有子元素
+  Array.from(pageElement.children).forEach(child => {
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      const element = child as HTMLElement;
+      const tagName = element.tagName.toLowerCase();
+      
+      if (tagName === 'p') {
+        hasParagraphs = true;
+      } else {
+        // 将非p标签的块级元素转换为p标签
+        const pTag = document.createElement('p');
+        pTag.innerHTML = element.innerHTML;
+        
+        // 复制样式
+        pTag.style.cssText = element.style.cssText;
+        
+        // 替换元素
+        element.parentNode?.replaceChild(pTag, element);
+        hasParagraphs = true;
+      }
+    }
+  });
+  
+  // 如果没有p标签，创建p标签包裹所有内容
+  if (!hasParagraphs) {
+    const pTag = document.createElement('p');
+    pTag.innerHTML = pageElement.innerHTML;
+    pageElement.innerHTML = '';
+    pageElement.appendChild(pTag);
+  }
+}
+
+// 获取或创建当前光标所在的段落元素
+function getOrCreateParagraph(range: Range, pageElement: HTMLElement): HTMLElement {
+  let currentNode = range.startContainer;
+  
+  // 如果是文本节点，获取其父元素
+  if (currentNode.nodeType === Node.TEXT_NODE) {
+    currentNode = currentNode.parentNode as Node;
+  }
+  
+  // 向上查找，直到找到p标签或pageElement
+  while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
+    const element = currentNode as HTMLElement;
+    const tagName = element.tagName.toLowerCase();
+    
+    // 如果找到p标签，直接返回
+    if (tagName === 'p') {
+      return element;
+    }
+    
+    // 如果已经到达pageElement，创建p标签
+    if (element === pageElement) {
+      break;
+    }
+    
+    currentNode = currentNode.parentNode;
+  }
+  
+  // 创建新的p标签
+  const pTag = document.createElement('p');
+  
+  // 如果range有选中内容，将内容移动到新p标签
+  if (!range.collapsed) {
+    const fragment = range.extractContents();
+    pTag.appendChild(fragment);
+  }
+  
+  // 插入新p标签
+  if (range.startContainer === pageElement) {
+    // 如果光标在pageElement内，直接插入
+    pageElement.appendChild(pTag);
+  } else {
+    // 否则，在光标位置插入
+    range.insertNode(pTag);
+  }
+  
+  return pTag;
+}
+
 // 插入Tab或取消缩进
 function insertTabOrUnindent(isShiftPressed: boolean, pageRefs: (HTMLDivElement | null)[], pageIndex: number) {
   const selection = window.getSelection();
@@ -95,122 +199,76 @@ function insertTabOrUnindent(isShiftPressed: boolean, pageRefs: (HTMLDivElement 
     return;
   }
 
-  let range = selection.getRangeAt(0);
-
+  const range = selection.getRangeAt(0);
+  const pageElement = pageRefs[pageIndex];
+  
+  if (!pageElement) {
+    return;
+  }
+  
+  // 确保内容使用p标签包裹
+  ensureParagraphs(pageElement);
+  
+  // 获取或创建当前段落
+  const paragraph = getOrCreateParagraph(range, pageElement);
+  
   if (isShiftPressed) {
     // Shift+Tab: 减少缩进
     try {
-      // 方法1: 使用execCommand删除字符
-      let success = false;
-
-      // 尝试删除最多4个前导空格
-      for (let i = 0; i < 4; i++) {
-        const container = range.startContainer;
-        const offset = range.startOffset;
-
-        if (container.nodeType === Node.TEXT_NODE && container.textContent && offset > 0) {
-          const text = container.textContent;
-          const charBefore = text[offset - 1];
-
-          // 检查前一个字符是否是空格或nbsp
-          if (charBefore === ' ' || charBefore === '\u00A0' || charBefore === '\u0020') {
-            // 移动光标到前一个字符
-            range.setStart(container, offset - 1);
-            range.setEnd(container, offset);
-
-            // 删除这个字符
-            if (document.execCommand) {
-              success = document.execCommand('delete', false) || success;
-            } else {
-              // 手动删除
-              range.deleteContents();
-              success = true;
-            }
-
-            // 更新range位置
-            const newSelection = window.getSelection();
-            if (newSelection && newSelection.rangeCount > 0) {
-              range = newSelection.getRangeAt(0);
-            }
-          } else {
-            break;
-          }
-        } else {
-          break;
+      // 直接读取元素的style.textIndent属性，获取原始的em值
+      let currentIndent = 0;
+      const styleIndent = paragraph.style.textIndent;
+      
+      if (styleIndent) {
+        // 提取em值
+        const match = styleIndent.match(/^(\d+)em$/);
+        if (match) {
+          currentIndent = parseInt(match[1], 10);
         }
       }
-
-      if (!success) {
-        // 方法2: 手动查找和删除空格
-        const container = range.startContainer;
-        if (container.nodeType === Node.TEXT_NODE && container.textContent) {
-          const text = container.textContent;
-          const offset = range.startOffset;
-
-          // 查找光标前面连续的空格字符（包括regular space和nbsp）
-          let spacesToRemove = 0;
-          for (let i = offset - 1; i >= 0 && spacesToRemove < 4; i--) {
-            const char = text[i];
-            if (char === ' ' || char === '\u00A0' || char === '\u0020') {
-              spacesToRemove++;
-            } else {
-              break;
-            }
-          }
-
-          if (spacesToRemove > 0) {
-            const newText = text.substring(0, offset - spacesToRemove) + text.substring(offset);
-            container.textContent = newText;
-            range.setStart(container, offset - spacesToRemove);
-            range.setEnd(container, offset - spacesToRemove);
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-        }
+      
+      // 在当前基础上减少2em，最小为0
+      const newIndent = Math.max(0, currentIndent - 2);
+      paragraph.style.textIndent = `${newIndent}em`;
+      
+      // 清除可能冲突的样式
+      paragraph.style.marginLeft = '0';
+      paragraph.style.paddingLeft = '0';
+      
+      // 如果没有其他样式，移除style属性
+      if (paragraph.getAttribute('style') === '') {
+        paragraph.removeAttribute('style');
       }
     } catch (e) {
       // 忽略取消缩进操作失败
     }
   } else {
-    // Tab: 增加缩进
+    // Tab: 增加缩进 - 使用首行缩进
     try {
-      // 方法1: 使用execCommand命令
-      if (document.execCommand) {
-        const success = document.execCommand('insertText', false, '    ');
-        if (success) {
-          triggerInputEvent(pageRefs, pageIndex);
-          return;
+      // 直接读取元素的style.textIndent属性，获取原始的em值
+      let currentIndent = 0;
+      const styleIndent = paragraph.style.textIndent;
+      
+      if (styleIndent) {
+        // 提取em值
+        const match = styleIndent.match(/^(\d+)em$/);
+        if (match) {
+          currentIndent = parseInt(match[1], 10);
         }
       }
+      
+      // 在当前基础上增加2em
+      const newIndent = currentIndent + 2;
+      paragraph.style.textIndent = `${newIndent}em`;
+      
+      // 清除可能冲突的样式
+      paragraph.style.marginLeft = '0';
+      paragraph.style.paddingLeft = '0';
+      
+      // 确保display属性为block，以便text-indent正常工作
+      paragraph.style.display = 'block';
     } catch (e) {
-      // 忽略execCommand失败
-    }
-
-    // 方法2: 手动插入文本节点
-    try {
-      range.deleteContents();
-      const textNode = document.createTextNode('    ');
-      range.insertNode(textNode);
-
-      // 移动光标到插入文本后
-      range.setStartAfter(textNode);
-      range.setEndAfter(textNode);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    } catch (e) {
-      // 方法3: 直接在pageRef上操作
-      try {
-        const pageEl = pageRefs[pageIndex];
-        if (pageEl) {
-          const currentContent = pageEl.innerHTML;
-          const caretPos = getCaretPosition(pageEl);
-          const newContent = currentContent.slice(0, caretPos) + '&nbsp;&nbsp;&nbsp;&nbsp;' + currentContent.slice(caretPos);
-          pageEl.innerHTML = newContent;
-          setCaretPosition(pageEl, caretPos + 4);
-        }
-      } catch (e2) {
-        // 忽略所有方法失败
-      }
+      // 忽略设置缩进失败
     }
   }
 

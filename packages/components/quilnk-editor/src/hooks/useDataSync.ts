@@ -302,6 +302,59 @@ export function useDataSync(
     }
   }
   
+  // 确保内容使用p标签包裹
+  function ensureParagraphs(pageElement: HTMLElement) {
+    // 检查是否已经有p标签
+    const hasParagraphs = Array.from(pageElement.children).some(child => 
+      child.tagName.toLowerCase() === 'p' || 
+      window.getComputedStyle(child).display === 'block'
+    );
+    
+    if (!hasParagraphs) {
+      // 如果没有p标签，创建p标签结构
+      const textContent = pageElement.textContent || '';
+      const innerHTML = pageElement.innerHTML;
+      
+      // 清空当前内容
+      pageElement.innerHTML = '';
+      
+      if (textContent.trim() || innerHTML.trim() !== '') {
+        // 创建p标签并添加内容
+        const pTag = document.createElement('p');
+        
+        // 如果有HTML内容，使用innerHTML，否则使用textContent
+        if (innerHTML.trim() !== '') {
+          pTag.innerHTML = innerHTML;
+        } else {
+          pTag.textContent = textContent;
+        }
+        
+        pageElement.appendChild(pTag);
+      }
+    } else {
+      // 确保所有块级元素都是p标签
+      Array.from(pageElement.children).forEach(child => {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          const element = child as HTMLElement;
+          const tagName = element.tagName.toLowerCase();
+          const display = window.getComputedStyle(element).display;
+          
+          if (display === 'block' && tagName !== 'p') {
+            // 将非p标签的块级元素转换为p标签
+            const pTag = document.createElement('p');
+            pTag.innerHTML = element.innerHTML;
+            
+            // 复制样式
+            pTag.style.cssText = element.style.cssText;
+            
+            // 替换元素
+            element.parentNode?.replaceChild(pTag, element);
+          }
+        }
+      });
+    }
+  }
+
   // 处理输入事件
   function onInput(event: Event, pageIndex: number) {
     const target = event.target as HTMLDivElement;
@@ -309,6 +362,9 @@ export function useDataSync(
 
     // 保存当前状态到历史记录
     saveToHistory();
+    
+    // 确保内容使用p标签包裹
+    ensureParagraphs(target);
     
     // 更新页面内容
     pages.value[pageIndex].content = target.innerHTML;

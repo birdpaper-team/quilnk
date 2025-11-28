@@ -12,10 +12,11 @@
     outline: none;
     font-size: 16px;
     line-height: var(--line-height);
-    color: #2c2c2c;
+    color: var(--bp-gray-8);
     word-break: break-word;
     caret-color: #1f6fff;
     overflow: hidden;
+    letter-spacing: 1px;
     display: block;
     padding: 0;
 

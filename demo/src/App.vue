@@ -20,11 +20,7 @@ const addPage = () => {
   editorRef.value?.addPage();
 };
 
-const testStr = `213<br><br>123<br>213<br>12<br>312<br>3<br>12<br>312<br>3<br>1<br>31<br>3<br>1<br>312<br>3<br>13<br>1<br>3<br>13<br>1<br>31<br>3<br><br><br><br>213<br>1<br>3<br><br><br>
-
----
-
-123<br><br><br>123`;
+const testStr = `<p>是啊大多数的大师大师大师的是的撒打算打撒打算打撒打撒打撒啊大师大师大师的是的撒打算打撒打算打撒打撒打撒啊大师大师大师的是的撒打算打撒打算打撒打撒打撒啊大师大师大师的是的撒打算打撒打算打撒打撒打撒啊</p>`;
 
 const initializeContent = () => {
   editorRef.value?.setContent(testStr);

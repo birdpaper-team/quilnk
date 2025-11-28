@@ -210,8 +210,96 @@ function executeCommand(command: string) {
     return;
   }
 
-  // 执行命令
-  document.execCommand(command, false);
+  // 处理缩进命令，使用text-indent而不是默认的margin
+  if (command === 'indent' || command === 'outdent') {
+    const range = selection.getRangeAt(0);
+    
+    // 查找当前选择范围内的所有p标签
+    const pTags = new Set<HTMLElement>();
+    
+    // 获取选择范围内的所有元素
+    const container = range.commonAncestorContainer;
+    let startNode = range.startContainer;
+    let endNode = range.endContainer;
+    
+    // 处理简单情况：选择范围在同一个节点内
+    if (startNode === endNode) {
+      // 向上查找，直到找到p标签或body
+      let currentNode = startNode;
+      if (currentNode.nodeType === Node.TEXT_NODE) {
+        currentNode = currentNode.parentNode as Node;
+      }
+      
+      while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
+        const element = currentNode as HTMLElement;
+        if (element.tagName.toLowerCase() === 'p') {
+          pTags.add(element);
+          break;
+        }
+        currentNode = currentNode.parentNode;
+      }
+    } else {
+      // 处理复杂情况：选择范围跨多个节点
+      // 这里简化处理，直接获取所有p标签
+      const allPTags = currentPageElement.querySelectorAll('p');
+      allPTags.forEach(pTag => pTags.add(pTag as HTMLElement));
+    }
+    
+    // 如果没有找到p标签，尝试获取当前光标所在的p标签
+    if (pTags.size === 0) {
+      let currentNode = range.startContainer;
+      if (currentNode.nodeType === Node.TEXT_NODE) {
+        currentNode = currentNode.parentNode as Node;
+      }
+      
+      while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
+        const element = currentNode as HTMLElement;
+        if (element.tagName.toLowerCase() === 'p') {
+          pTags.add(element);
+          break;
+        }
+        currentNode = currentNode.parentNode;
+      }
+    }
+    
+    // 应用缩进或取消缩进
+    pTags.forEach(pTag => {
+      // 直接读取元素的style.textIndent属性，获取原始的em值
+      let currentIndent = 0;
+      const styleIndent = pTag.style.textIndent;
+      
+      if (styleIndent) {
+        // 提取em值
+        const match = styleIndent.match(/^(\d+)em$/);
+        if (match) {
+          currentIndent = parseInt(match[1], 10);
+        }
+      }
+      
+      if (command === 'indent') {
+        // 增加缩进 - 在当前基础上增加2em
+        const newIndent = currentIndent + 2;
+        pTag.style.textIndent = `${newIndent}em`;
+        // 清除可能冲突的样式
+        pTag.style.marginLeft = '0';
+        pTag.style.paddingLeft = '0';
+      } else {
+        // 减少缩进 - 在当前基础上减少2em，最小为0
+        const newIndent = Math.max(0, currentIndent - 2);
+        pTag.style.textIndent = `${newIndent}em`;
+        // 清除可能冲突的样式
+        pTag.style.marginLeft = '0';
+        pTag.style.paddingLeft = '0';
+        // 如果没有其他样式，移除style属性
+        if (pTag.getAttribute('style') === '') {
+          pTag.removeAttribute('style');
+        }
+      }
+    });
+  } else {
+    // 其他命令使用默认的document.execCommand行为
+    document.execCommand(command, false);
+  }
 
   // 触发input事件以更新modelValue
   const inputEvent = new Event("input", { bubbles: true });
