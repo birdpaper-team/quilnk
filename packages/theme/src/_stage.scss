@@ -1,0 +1,103 @@
+@use "mixins/mixins.scss" as *;
+
+// 舞台和布局
+@include b("editor") {
+  // 舞台: 居中纸张
+  &__stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10mm; // 页面间距
+    
+    // 移动端适配
+    @media (max-width: 768px) {
+      padding: 10mm 0;
+      gap: 10mm;
+    }
+  }
+
+  // 页面头部
+  &__page-header {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+    height: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    
+    // 鼠标悬停时显示
+    .quilnk-editor__paper:hover & {
+      opacity: 1;
+    }
+    
+    // 移动端始终显示
+    @media (max-width: 768px) {
+      opacity: 1;
+      position: static;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.05);
+      margin-bottom: 10px;
+    }
+  }
+
+  // 删除按钮
+  &__delete-btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #cc0000;
+      transform: scale(1.1);
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
+    
+    @media (max-width: 768px) {
+      width: 24px;
+      height: 24px;
+      font-size: 16px;
+    }
+  }
+
+  // 添加页面区域
+  &__add-page {
+    display: flex;
+    justify-content: center;
+    
+    @media (max-width: 768px) {
+      margin-top: 10mm;
+    }
+  }
+
+  // 小屏幕适配
+  @media (max-width: 900px) {
+    &__stage { padding: 16px 0 60px; }
+  }
+  
+  // 移动端全局优化
+  @media (max-width: 768px) {
+    // 防止横向滚动
+    &__stage {
+      overflow-x: hidden;
+    }
+  }
+}

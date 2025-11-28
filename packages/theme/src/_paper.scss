@@ -1,0 +1,148 @@
+@use "mixins/mixins.scss" as *;
+
+// 纸张和页面样式
+@include b("editor") {
+  // 纸张容器
+  &__paper {
+    width: 210mm;
+    height: 297mm;
+    border-radius: 1px;
+    position: relative;
+    flex-shrink: 0; // 防止页面被压缩
+    
+    // 更真实的纸张阴影 - 更淡更自然
+    box-shadow: 
+      0 0 0 1px rgba(0, 0, 0, 0.02),
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 2px 4px rgba(0, 0, 0, 0.03),
+      0 4px 12px rgba(0, 0, 0, 0.02),
+      0 8px 24px rgba(0, 0, 0, 0.015);
+    
+    background: 
+      /* 真实纸张的纤维纹理 */
+      radial-gradient(0.8px 0.8px at 12% 18%, rgba(0,0,0,0.01) 0, rgba(0,0,0,0) 100%),
+      radial-gradient(1px 1px at 88% 82%, rgba(0,0,0,0.008) 0, rgba(0,0,0,0) 100%),
+      radial-gradient(1.2px 1.2px at 35% 65%, rgba(0,0,0,0.006) 0, rgba(0,0,0,0) 100%),
+      radial-gradient(0.9px 0.9px at 75% 25%, rgba(0,0,0,0.005) 0, rgba(0,0,0,0) 100%),
+      /* 纸张基色 - 纯白色 */
+      #ffffff;
+    
+    overflow: hidden;
+    
+    // 移动端自适应
+    @media (max-width: 768px) {
+      width: 100vw;
+      min-height: 100vh;
+      height: auto;
+      border-radius: 0;
+      margin: 0;
+    }
+    
+    // 移动端去除阴影
+    @media (max-width: 768px) {
+      box-shadow: none;
+    }
+    
+    // 纸张边缘效果
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 1px;
+      border: 0.3px solid rgba(0,0,0,0.06);
+      pointer-events: none;
+    }
+    
+    // 纸张内部微光
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0.5px;
+      border-radius: 0.5px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%);
+      pointer-events: none;
+    }
+  }
+
+  // 页边距
+  &__page {
+    --page-margin: 10mm;
+    --line-height: 8mm; // 增加行高让横线更高
+    --baseline-offset: 2mm; // 调整基线偏移
+    --line-margin: 15mm; // 横线左右边距
+    --line-vertical-margin: 20mm; // 横线上下边距
+    --page-number-height: 10mm; // 页码区域高度
+    height: 100%;
+    padding: var(--page-margin);
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    
+    // 移动端边距调整
+    @media (max-width: 768px) {
+      --page-margin: 15px;
+      --line-margin: 20px; // 使用px单位，更适合移动端
+      --line-vertical-margin: 20px;
+      --page-number-height: 30px;
+      padding: var(--page-margin);
+      min-height: 100vh; // 确保移动端有最小高度
+    }
+    
+    // 使用伪元素创建带边距的横线
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--line-vertical-margin);
+      left: var(--line-margin);
+      right: var(--line-margin);
+      bottom: calc(var(--line-vertical-margin) + var(--page-number-height));
+      background: 
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0mm,
+          transparent calc(var(--line-height) - 0.2mm),
+          rgba(108, 139, 181, 0.45) calc(var(--line-height) - 0.1mm),
+          rgba(108, 139, 181, 0.35) var(--line-height)
+        );
+      pointer-events: none;
+    }
+  }
+  
+  // 页码显示
+  &__page-number {
+    margin-top: auto;
+    padding: 5px 0;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    pointer-events: none;
+    
+    // 移动端样式调整
+    @media (max-width: 768px) {
+      font-size: 14px;
+      padding: 8px 0;
+    }
+  }
+
+  // 页面编号（重复定义，保持一致性）
+  &__page-number {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
+  }
+
+  // 超小屏幕适配
+  @media (max-width: 480px) {
+    &__page {
+      --page-margin: 10px;
+      --line-margin: 15px; // 使用px单位
+      --line-vertical-margin: 15px;
+    }
+  }
+}
