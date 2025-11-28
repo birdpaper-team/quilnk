@@ -1,17 +1,11 @@
 <template>
   <div :class="clsBlockName">
-    
     <div class="quilnk-editor__stage">
       <div v-for="(page, index) in pages" :key="`page-${page.id}`" class="quilnk-editor__paper">
         <!-- 页面工具栏，只在当前页聚焦时显示 -->
         <div class="quilnk-editor__toolbar-container">
           <transition name="toolbar-fade">
-            <EditorToolbar 
-              v-if="isToolbarVisible && index === currentPageIndex" 
-              @command="executeCommand" 
-              @undo="undo" 
-              @redo="redo" 
-            />
+            <EditorToolbar v-if="isToolbarVisible && index === currentPageIndex" @command="executeCommand" />
           </transition>
         </div>
         <div class="quilnk-editor__page">
@@ -27,8 +21,7 @@
             @keydown="(event) => onKeyDown(event, index)"
             @keypress="(event) => onKeyPress(event, index)"
             @focus="onPageFocus(index)"
-            @blur="onPageBlur"
-          />
+            @blur="onPageBlur" />
           <!-- 页码显示 -->
           <div class="quilnk-editor__page-number">
             {{ formatPageNumber(index + 1, pages.length) }}
@@ -110,9 +103,7 @@ function onPageBlur() {
   // 延迟检查，确保点击工具栏按钮时不会隐藏工具栏
   setTimeout(() => {
     // 检查是否有任何页面内容区域获得焦点
-    const hasFocus = Array.from(pageRefs.value).some(page => 
-      document.activeElement === page
-    );
+    const hasFocus = Array.from(pageRefs.value).some((page) => document.activeElement === page);
     if (!hasFocus) {
       isToolbarVisible.value = false;
     }

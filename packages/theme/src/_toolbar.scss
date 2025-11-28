@@ -17,11 +17,10 @@
 
   &__toolbar {
     @include flex(row, center, center);
-    gap: 10px;
-    width: 90%;
+    width: max-content;
     max-width: 800px;
     flex-shrink: 0; // 防止页面被压缩
-    padding: 2px 20px;
+    padding: 0 8px;
     background: var(--bp-gray-0);
     border-radius: 26px;
     border: $borderSize solid $borderColor-2;
@@ -30,8 +29,6 @@
 
     // 移动端样式调整
     @media (max-width: 768px) {
-      padding: 8px 15px;
-      gap: 8px;
       flex-wrap: wrap;
     }
   }
@@ -39,7 +36,7 @@
   // 工具栏过渡动画
   .toolbar-fade-enter-active,
   .toolbar-fade-leave-active {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .toolbar-fade-enter-from,
@@ -51,7 +48,7 @@
   // 工具栏分组
   &__toolbar-group {
     @include flex(row, center, center);
-    gap: 4px;
+    gap: 2px;
     padding: 5px 10px;
 
     // 移动端样式调整
@@ -73,9 +70,13 @@
     transition: all 0.2s ease;
     color: var(--bp-gray-6);
 
+    .bp-icon {
+      fill: var(--bp-gray-6);
+    }
+
     // 按钮悬停效果
     &:hover {
-      background: #f0f0f0;
+      background: var(--bp-gray-4);
       border-color: #d0d0d0;
     }
 
