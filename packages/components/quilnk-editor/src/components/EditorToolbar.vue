@@ -81,6 +81,13 @@
         <IconIndentIncrease size="16" />
       </button>
     </div>
+
+    <!-- 引用 -->
+    <div class="quilnk-editor__toolbar-group">
+      <button class="quilnk-editor__toolbar-btn" type="button" :aria-label="'添加引用'" @click="$emit('command', 'toggleQuote')">
+        <IconQuoteText size="16" />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -96,6 +103,7 @@ import {
   IconAlignJustify,
   IconIndentIncrease,
   IconIndentDecrease,
+  IconQuoteText,
 } from "birdpaper-icon";
 
 defineOptions({ name: "EditorToolbar" });
@@ -115,6 +123,6 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  (e: "command", command: string): void;
+  (e: "command", command: string, value?: string): void;
 }>();
 </script>

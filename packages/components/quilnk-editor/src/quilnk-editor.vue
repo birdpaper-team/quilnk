@@ -5,7 +5,7 @@
         <!-- 页面工具栏，只在当前页聚焦时显示 -->
         <div class="quilnk-editor__toolbar-container">
           <transition name="toolbar-fade">
-            <EditorToolbar v-if="isToolbarVisible && index === currentPageIndex" :format="currentFormat" @command="executeCommand" />
+            <EditorToolbar v-if="isToolbarVisible && index === currentPageIndex" :format="currentFormat" @command="(...args) => executeCommand(...args)" />
           </transition>
         </div>
         <div class="quilnk-editor__page">
@@ -197,7 +197,7 @@ onMounted(() => {
 });
 
 // 执行编辑器命令
-function executeCommand(command: string) {
+function executeCommand(command: string, value?: string) {
   // 确保编辑器有焦点
   const currentPageElement = pageRefs.value[currentPageIndex.value];
   if (currentPageElement) {
@@ -294,6 +294,68 @@ function executeCommand(command: string) {
         if (pTag.getAttribute('style') === '') {
           pTag.removeAttribute('style');
         }
+      }
+    });
+  } else if (command === 'toggleQuote') {
+    // 处理toggleQuote命令，用于添加/移除引用样式
+    const range = selection.getRangeAt(0);
+    
+    // 查找当前选择范围内的所有p标签
+    const pTags = new Set<HTMLElement>();
+    
+    // 获取选择范围内的所有元素
+    const container = range.commonAncestorContainer;
+    let startNode = range.startContainer;
+    let endNode = range.endContainer;
+    
+    // 处理简单情况：选择范围在同一个节点内
+    if (startNode === endNode) {
+      // 向上查找，直到找到p标签或body
+      let currentNode = startNode;
+      if (currentNode.nodeType === Node.TEXT_NODE) {
+        currentNode = currentNode.parentNode as Node;
+      }
+      
+      while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
+        const element = currentNode as HTMLElement;
+        if (element.tagName.toLowerCase() === 'p') {
+          pTags.add(element);
+          break;
+        }
+        currentNode = currentNode.parentNode;
+      }
+    } else {
+      // 处理复杂情况：选择范围跨多个节点
+      // 这里简化处理，直接获取所有p标签
+      const allPTags = currentPageElement.querySelectorAll('p');
+      allPTags.forEach(pTag => pTags.add(pTag as HTMLElement));
+    }
+    
+    // 如果没有找到p标签，尝试获取当前光标所在的p标签
+    if (pTags.size === 0) {
+      let currentNode = range.startContainer;
+      if (currentNode.nodeType === Node.TEXT_NODE) {
+        currentNode = currentNode.parentNode as Node;
+      }
+      
+      while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
+        const element = currentNode as HTMLElement;
+        if (element.tagName.toLowerCase() === 'p') {
+          pTags.add(element);
+          break;
+        }
+        currentNode = currentNode.parentNode;
+      }
+    }
+    
+    // 切换引用样式
+    pTags.forEach(pTag => {
+      if (pTag.classList.contains('quilnk-editor__content--quote')) {
+        // 移除引用样式
+        pTag.classList.remove('quilnk-editor__content--quote');
+      } else {
+        // 添加引用样式
+        pTag.classList.add('quilnk-editor__content--quote');
       }
     });
   } else {
