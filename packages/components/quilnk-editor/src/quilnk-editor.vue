@@ -1,37 +1,28 @@
 <template>
   <div :class="clsBlockName">
     <div class="quilnk-editor__stage">
-      <div v-for="(page, index) in pages" :key="`page-${page.id}`" class="quilnk-editor__paper">
+      <!-- 只渲染一页内容 -->
+      <div class="quilnk-editor__paper">
         <!-- 页面工具栏，只在当前页聚焦时显示 -->
         <div class="quilnk-editor__toolbar-container">
           <transition name="toolbar-fade">
-            <EditorToolbar v-if="isToolbarVisible && index === currentPageIndex" :format="currentFormat" @command="(...args) => executeCommand(...args)" />
+            <EditorToolbar v-if="isToolbarVisible" :format="currentFormat" @command="(...args) => executeCommand(...args)" />
           </transition>
         </div>
         <div class="quilnk-editor__page">
           <div
-            :ref="(el) => setPageRef(el as HTMLDivElement, index)"
+            :ref="(el) => setPageRef(el as HTMLDivElement, 0)"
             class="quilnk-editor__content font-yrd"
             contenteditable="true"
             spellcheck="true"
-            :data-placeholder="index === 0 && pages.length === 1 ? placeholder : ''"
-            :data-page-index="index"
-            @input="(event) => onInput(event, index)"
-            @paste="(event) => onPaste(event, index)"
-            @keydown="(event) => onKeyDown(event, index)"
-            @keypress="(event) => onKeyPress(event, index)"
-            @focus="onPageFocus(index)"
+            :data-placeholder="placeholder"
+            @input="(event) => onInput(event, 0)"
+            @paste="(event) => onPaste(event, 0)"
+            @keydown="(event) => onKeyDown(event, 0)"
+            @keypress="(event) => onKeyPress(event, 0)"
+            @focus="onPageFocus(0)"
             @blur="onPageBlur" />
-          <!-- 页码显示 -->
-          <div class="quilnk-editor__page-number">
-            {{ formatPageNumber(index + 1, pages.length) }}
-          </div>
         </div>
-      </div>
-
-      <!-- 添加新页面按钮 -->
-      <div class="quilnk-editor__add-page">
-        <bp-button type="dashed" @click="() => addPage()" status="gray"> 添加新页 </bp-button>
       </div>
     </div>
   </div>
@@ -50,13 +41,10 @@ defineOptions({ name: "QuilnkEditor" });
 const props = defineProps<{
   modelValue?: string;
   placeholder?: string;
-  pageNumberFormat?: string;
 }>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
-  (e: "pageAdded", pageIndex: number): void;
-  (e: "pageDeleted", pageIndex: number, pageCount: number): void;
 }>();
 
 const clsBlockName = "quilnk-editor";
@@ -82,8 +70,6 @@ const {
   currentPageIndex,
   setPageRef,
   setCurrentPage,
-  addPage: addPageInternal,
-  deletePage: deletePageInternal,
   focusPage,
   getPageCount,
   getCurrentPageIndex,
@@ -98,7 +84,7 @@ const { getContent, setContent, initializeContent, setupModelValueWatch, onInput
   emit
 );
 
-const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo, deletePage);
+const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo);
 
 // 检测当前选区的格式
 function detectCurrentFormat() {
@@ -146,38 +132,6 @@ function setupSelectionListener() {
 
   // 监听键盘事件，检测格式变化
   document.addEventListener("keyup", detectCurrentFormat);
-}
-
-// 包装addPage方法，添加事件触发
-function addPage(index?: number): number {
-  const insertIndex = addPageInternal(index);
-
-  // 等待DOM更新后聚焦新页面
-  nextTick(() => {
-    focusPage(insertIndex);
-  });
-
-  emit("pageAdded", insertIndex);
-  emit("update:modelValue", getContent());
-
-  return insertIndex;
-}
-
-// 包装deletePage方法，添加确认和事件触发
-function deletePage(index: number) {
-  const result = deletePageInternal(index);
-  if (result) {
-    // 聚焦到合适的页面
-    nextTick(() => {
-      const targetIndex = Math.min(index, pages.value.length - 1);
-      focusPage(targetIndex);
-    });
-
-    emit("pageDeleted", index, pages.value.length);
-    emit("update:modelValue", getContent());
-  }
-
-  return result;
 }
 
 onMounted(() => {
@@ -371,22 +325,13 @@ function executeCommand(command: string, value?: string) {
   detectCurrentFormat();
 }
 
-// 格式化页码
-function formatPageNumber(pageNumber: number, totalPages: number): string {
-  const format = props.pageNumberFormat || "第 {page} 页";
-  return format.replace(/{page}/g, pageNumber.toString()).replace(/{total}/g, totalPages.toString());
-}
-
 // 暴露组件方法
 defineExpose({
-  addPage,
-  deletePage,
   focusPage,
   getContent,
   setContent,
   getPageCount,
   getCurrentPageIndex,
-  formatPageNumber,
 });
 
 const placeholder = computed(() => props.placeholder ?? "在这张纸上写点什么吧…");

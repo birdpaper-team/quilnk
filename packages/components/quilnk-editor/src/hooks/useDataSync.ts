@@ -62,14 +62,12 @@ export function useDataSync(
       historyIndex.value++;
     }
   }
-  // 收集所有页面内容
+  // 收集所有页面内容 - 只返回第一页内容
   function getContent(): string {
-    return pages.value
-      .map((page) => page.content)
-      .join('\n\n---\n\n'); // 用分隔符区分页面，保留所有页面，包括空页面
+    return pages.value[0]?.content || '';
   }
   
-  // 设置编辑器内容
+  // 设置编辑器内容 - 只处理一页内容
   function setContent(content: string) {
     if (!content) {
       // 如果值为空，重置为单页空内容
@@ -78,11 +76,9 @@ export function useDataSync(
       
       // 直接设置DOM内容
       nextTick(() => {
-        pages.value.forEach((page, index) => {
-          if (pageRefs.value[index]) {
-            pageRefs.value[index].innerHTML = page.content;
-          }
-        });
+        if (pageRefs.value[0]) {
+          pageRefs.value[0].innerHTML = '';
+        }
       });
       return;
     }
@@ -93,51 +89,33 @@ export function useDataSync(
       return;
     }
     
-    // 分割新值为多页
-    const pageContents = content.split('\n\n---\n\n');
-    pages.value = pageContents.map((content, index) => ({
-      id: index < pages.value.length ? pages.value[index].id : `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      content: content.trim(),
-    }));
-    pageRefs.value = Array.from({ length: pages.value.length }, () => null);
+    // 只设置第一页内容，不再分割为多页
+    pages.value[0].content = content;
     
     // 直接设置DOM内容
     nextTick(() => {
-      pages.value.forEach((page, index) => {
-        if (pageRefs.value[index]) {
-          pageRefs.value[index].innerHTML = page.content;
-        }
-      });
+      if (pageRefs.value[0]) {
+        pageRefs.value[0].innerHTML = content;
+      }
     });
   }
 
-  // 初始化内容
+  // 初始化内容 - 只处理一页内容
   function initializeContent() {
     if (initialContent) {
-      // 如果初始值包含页面分隔符，分割成多页
-      const pageContents = initialContent.split('\n\n---\n\n');
-      if (pageContents.length > 1) {
-        pages.value = pageContents.map((content, index) => ({
-          id: index === 0 ? pages.value[0].id : `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          content: content.trim(),
-        }));
-        pageRefs.value = Array.from({ length: pages.value.length }, () => null);
-      } else {
-        pages.value[0].content = initialContent;
-      }
+      // 只初始化第一页内容，忽略页面分隔符
+      pages.value[0].content = initialContent;
 
       // 直接设置DOM内容
       nextTick(() => {
-        pages.value.forEach((page, index) => {
-          if (pageRefs.value[index]) {
-            pageRefs.value[index].innerHTML = page.content;
-          }
-        });
+        if (pageRefs.value[0]) {
+          pageRefs.value[0].innerHTML = initialContent;
+        }
       });
     }
   }
 
-  // 监听modelValue变化，同步到内部状态
+  // 监听modelValue变化，同步到内部状态 - 只处理一页内容
   function setupModelValueWatch(modelValue: string) {
     watch(() => modelValue, (newValue) => {
       if (!newValue) {
@@ -160,85 +138,15 @@ export function useDataSync(
         return;
       }
 
-      // 分割新值为多页
-      const pageContents = newValue.split('\n\n---\n\n');
-      pages.value = pageContents.map((content, index) => ({
-        id: index < pages.value.length ? pages.value[index].id : `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        content: content.trim(),
-      }));
-      pageRefs.value = Array.from({ length: pages.value.length }, () => null);
+      // 只设置第一页内容，忽略页面分隔符
+      pages.value[0].content = newValue;
       
       // 直接设置DOM内容
       nextTick(() => {
-        pages.value.forEach((page, index) => {
-          if (pageRefs.value[index]) {
-            pageRefs.value[index].innerHTML = page.content;
-          }
-        });
+        if (pageRefs.value[0]) {
+          pageRefs.value[0].innerHTML = newValue;
+        }
       });
-    });
-  }
-
-  // 检测内容是否超出页面
-  function isContentOverflowing(pageElement: HTMLElement): boolean {
-    // 统一使用scrollHeight和clientHeight比较，确保移动端和PC端行为一致
-    // 文字固定在纸张上，当内容超出纸张高度时，创建新页面
-    return pageElement.scrollHeight > pageElement.clientHeight;
-  }
-
-  // 分割内容到新页面
-  function splitContentToNewPage(pageIndex: number, currentPageElement?: HTMLDivElement) {
-    const currentPage = pages.value[pageIndex];
-    const pageElement = currentPageElement || pageRefs.value[pageIndex];
-    
-    if (!pageElement) return;
-
-    // 检查内容是否超出页面
-    if (!isContentOverflowing(pageElement)) {
-      return;
-    }
-    
-    // 检查是否已经创建了新页面，防止重复创建
-    const hasNextPage = pageIndex < pages.value.length - 1;
-    if (hasNextPage) {
-      return;
-    }
-    
-    // 创建新页面
-    const newPage: Page = {
-      id: `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      content: '',
-    };
-    
-    // 插入新页面
-    pages.value.splice(pageIndex + 1, 0, newPage);
-    pageRefs.value.splice(pageIndex + 1, 0, null);
-    
-    // 更新DOM内容
-    nextTick(() => {
-      const newPageElement = pageRefs.value[pageIndex + 1];
-      if (newPageElement) {
-        // 新页面初始化为空，确保只有一行
-        newPageElement.innerHTML = '';
-        
-        // 更新页面数据
-        pages.value[pageIndex + 1].content = '';
-        
-        // 聚焦到新页面的开头
-        focusNewPage(pageIndex + 1);
-      }
-    });
-  }
-  
-  // 聚焦到新页面
-  function focusNewPage(pageIndex: number) {
-    nextTick(() => {
-      const newPageElement = pageRefs.value[pageIndex];
-      if (newPageElement) {
-        newPageElement.focus();
-        // 设置光标到新页面开头
-        setCaretPosition(newPageElement, 0);
-      }
     });
   }
 
@@ -357,7 +265,7 @@ export function useDataSync(
     }
   }
 
-  // 处理输入事件
+  // 处理输入事件 - 移除自动分页逻辑，所有内容都在一页内编辑
   function onInput(event: Event, pageIndex: number) {
     const target = event.target as HTMLDivElement;
     if (!target) return;
@@ -370,12 +278,6 @@ export function useDataSync(
     
     // 更新页面内容
     pages.value[pageIndex].content = target.innerHTML;
-
-    // 检测内容是否超出页面
-    // 当内容超出页面时，总是尝试分割内容到新页面
-    if (isContentOverflowing(target)) {
-      splitContentToNewPage(pageIndex, target);
-    }
 
     // 发送更新事件
     emit('update:modelValue', getContent());

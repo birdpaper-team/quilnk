@@ -15,9 +15,9 @@ export function usePageManagement(initialContent: string = '') {
   const currentPageIndex = ref(0);
   const pageRefs = ref<(HTMLDivElement | null)[]>([]);
 
-  // 设置页面引用
+  // 设置页面引用 - 只处理索引为0的页面
   function setPageRef(el: HTMLDivElement | null, index: number) {
-    if (el) {
+    if (el && index === 0) {
       // 确保数组足够大
       while (pageRefs.value.length <= index) {
         pageRefs.value.push(null);
@@ -26,69 +26,27 @@ export function usePageManagement(initialContent: string = '') {
     }
   }
 
-  // 设置当前页面
+  // 设置当前页面 - 始终设置为0，因为只有一页
   function setCurrentPage(index: number) {
-    currentPageIndex.value = index;
+    currentPageIndex.value = 0;
   }
 
-  // 添加新页面
-  function addPage(index?: number): number {
-    const insertIndex = index !== undefined ? index + 1 : pages.value.length;
-    const newPage: Page = {
-      id: generatePageId(),
-      content: '',
-    };
-
-    pages.value.splice(insertIndex, 0, newPage);
-    pageRefs.value.splice(insertIndex, 0, null);
-
-    return insertIndex;
-  }
-
-  // 删除页面
-  function deletePage(index: number): boolean {
-    if (pages.value.length <= 1) {
-      console.warn('Cannot delete the last page');
-      return false;
-    }
-
-    if (index < 0 || index >= pages.value.length) {
-      console.warn('Invalid page index');
-      return false;
-    }
-
-    pages.value.splice(index, 1);
-    pageRefs.value.splice(index, 1);
-
-    // 调整当前页面索引
-    if (currentPageIndex.value >= pages.value.length) {
-      currentPageIndex.value = pages.value.length - 1;
-    } else if (currentPageIndex.value > index) {
-      currentPageIndex.value--;
-    }
-
-    return true;
-  }
-
-  // 聚焦到指定页面
+  // 聚焦到指定页面 - 只允许聚焦到索引为0的页面
   function focusPage(index: number) {
-    if (index >= 0 && index < pageRefs.value.length) {
-      const pageElement = pageRefs.value[index];
-      if (pageElement) {
-        pageElement.focus();
-        currentPageIndex.value = index;
-      }
+    if (index === 0 && pageRefs.value[0]) {
+      pageRefs.value[0].focus();
+      currentPageIndex.value = 0;
     }
   }
 
-  // 获取页面数量
+  // 获取页面数量 - 始终返回1，因为只有一页
   function getPageCount(): number {
-    return pages.value.length;
+    return 1;
   }
 
-  // 获取当前页面索引
+  // 获取当前页面索引 - 始终返回0，因为只有一页
   function getCurrentPageIndex(): number {
-    return currentPageIndex.value;
+    return 0;
   }
 
   return {
@@ -97,8 +55,6 @@ export function usePageManagement(initialContent: string = '') {
     currentPageIndex,
     setPageRef,
     setCurrentPage,
-    addPage,
-    deletePage,
     focusPage,
     getPageCount,
     getCurrentPageIndex,

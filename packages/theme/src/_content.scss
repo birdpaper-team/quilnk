@@ -4,28 +4,26 @@
   @include b("editor") {
     // 内容区域 (可编辑)
     &__content {
-      position: absolute;
-      top: var(--line-vertical-margin);
-      left: var(--line-margin);
-      right: var(--line-margin);
-      bottom: calc(var(--line-vertical-margin) + var(--page-number-height));
+      position: relative;
+      margin: var(--line-vertical-margin) var(--line-margin) calc(var(--line-vertical-margin) + var(--page-number-height)) var(--line-margin);
       outline: none;
       font-size: 16px;
       line-height: var(--line-height);
-      color: var(--bp-gray-8);
       word-break: break-word;
       caret-color: #1f6fff;
-      overflow: hidden;
+      overflow: visible;
       letter-spacing: 1px;
       display: block;
       padding: 0;
+      min-height: calc(100% - var(--line-vertical-margin) * 2 - var(--page-number-height));
+      box-sizing: border-box;
 
       // 移动端样式调整 - 保持与PC端一致的字体大小和行高，确保内容数量一致
       @media (max-width: 768px) {
         font-size: 16px; // 保持与PC端一致的字体大小
-        overflow: hidden; // 不允许滚动，文字固定在纸张上
+        overflow: visible; // 允许内容自然流动
         min-height: auto;
-        bottom: calc(var(--line-vertical-margin) + var(--page-number-height)); // 保持固定底部位置
+        margin: var(--line-vertical-margin) var(--line-margin) calc(var(--line-vertical-margin) + var(--page-number-height)) var(--line-margin); // 保持一致的边距
         line-height: var(--line-height); // 保持与PC端一致的行高
         letter-spacing: 1px; // 保持与PC端一致的字间距
       }
@@ -45,6 +43,7 @@
       min-height: var(--line-height);
       // 移除 flex 布局，使用 block 布局以便 text-align 生效
       display: block;
+      color: var(--bp-gray-10);
 
       &:not(:last-child) {
         margin-bottom: 0;

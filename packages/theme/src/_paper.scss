@@ -5,7 +5,7 @@
   // 纸张容器
   &__paper {
     width: 210mm;
-    height: 297mm;
+    min-height: 297mm;
     border-radius: 1px;
     position: relative;
     flex-shrink: 0; // 防止页面被压缩
@@ -68,13 +68,13 @@
     --baseline-offset: 2mm; // 调整基线偏移
     --line-margin: 15mm; // 横线左右边距
     --line-vertical-margin: 20mm; // 横线上下边距
-    --page-number-height: 10mm; // 页码区域高度
-    height: 100%;
-    padding: var(--page-margin);
+    height: auto; // 高度自适应内容
+    min-height: 297mm; // 最小高度为A4纸高度
+    padding: var(--line-vertical-margin) var(--line-margin);
     box-sizing: border-box;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+    position: relative; // 改为relative定位，以便高度自适应
+    width: 100%;
+    display: block; // 改为block布局，以便高度自适应
     
     // 移动端边距调整 - 保持与PC端一致的行高和内容区域比例
     @media (max-width: 768px) {
@@ -94,7 +94,7 @@
       top: var(--line-vertical-margin);
       left: var(--line-margin);
       right: var(--line-margin);
-      bottom: calc(var(--line-vertical-margin) + var(--page-number-height));
+      bottom: var(--line-vertical-margin);
       background: 
         repeating-linear-gradient(
           to bottom,
@@ -104,6 +104,7 @@
           rgba(108, 139, 181, 0.35) var(--line-height)
         );
       pointer-events: none;
+      z-index: 0; // 确保横线在内容下方
     }
   }
   
