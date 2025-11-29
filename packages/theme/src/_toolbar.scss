@@ -13,6 +13,11 @@
     left: 0;
     z-index: 10;
     pointer-events: none; // 确保容器不影响鼠标事件
+
+    // 超小屏幕适配 - 调整工具栏位置，防止与内容重叠
+    @media (max-width: 480px) {
+      top: 20px; // 略微调整顶部位置
+    }
   }
 
   &__toolbar {
@@ -35,7 +40,8 @@
 
     // 移动端样式调整
     @media (max-width: 768px) {
-      flex-wrap: wrap;
+      max-width: 360px;
+      overflow-x: auto;
     }
   }
 
@@ -80,7 +86,7 @@
     .bp-icon {
       fill: var(--bp-gray-6);
     }
-    
+
     &:hover {
       background: rgba(var(--bp-gray-2-rgb), 0.6);
 

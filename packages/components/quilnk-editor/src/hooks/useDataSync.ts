@@ -181,7 +181,33 @@ export function useDataSync(
 
   // 检测内容是否超出页面
   function isContentOverflowing(pageElement: HTMLElement): boolean {
-    return pageElement.scrollHeight > pageElement.clientHeight;
+    // 检查是否为移动端
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // 移动端：使用固定的高度阈值来检测内容是否超出
+      // 获取页面的计算样式
+      const computedStyle = window.getComputedStyle(pageElement);
+      const lineHeight = parseFloat(computedStyle.lineHeight) || 24; // 默认行高
+      const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+      const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+      
+      // 计算内容区域的可用高度（基于A4比例和移动端屏幕高度）
+      const availableHeight = window.innerHeight - paddingTop - paddingBottom - 100; // 减去一些边距
+      
+      // 计算当前内容的行数
+      const textContent = pageElement.textContent || '';
+      const lineCount = textContent.split('\n').length;
+      
+      // 计算内容的估计高度
+      const estimatedHeight = lineCount * lineHeight;
+      
+      // 当内容高度超过可用高度的80%时，认为需要分页
+      return estimatedHeight > availableHeight * 0.8;
+    } else {
+      // PC端：使用scrollHeight和clientHeight比较
+      return pageElement.scrollHeight > pageElement.clientHeight;
+    }
   }
 
   // 分割内容到新页面

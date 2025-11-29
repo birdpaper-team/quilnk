@@ -29,17 +29,13 @@
     
     overflow: hidden;
     
-    // 移动端自适应
+    // 移动端自适应 - 宽度撑满，高度自适应，增加上下边距
     @media (max-width: 768px) {
       width: 100vw;
-      min-height: 100vh;
       height: auto;
+      min-height: 100vh;
+      margin: 20px 0; // 增加上下外边距，为工具栏和分页腾出更多空间
       border-radius: 0;
-      margin: 0;
-    }
-    
-    // 移动端去除阴影
-    @media (max-width: 768px) {
       box-shadow: none;
     }
     
@@ -79,12 +75,12 @@
     display: flex;
     flex-direction: column;
     
-    // 移动端边距调整
+    // 移动端边距调整 - 增加上下边距，为工具栏和分页腾出更多空间
     @media (max-width: 768px) {
-      --page-margin: 15px;
+      --page-margin: 20px; // 增加整体边距
       --line-margin: 20px; // 使用px单位，更适合移动端
-      --line-vertical-margin: 20px;
-      --page-number-height: 30px;
+      --line-vertical-margin: 60px; // 增加上下边距，为工具栏腾出更多空间
+      --page-number-height: 40px; // 增加页码区域高度，为分页腾出更多空间
       padding: var(--page-margin);
       min-height: 100vh; // 确保移动端有最小高度
     }
@@ -137,12 +133,13 @@
     }
   }
 
-  // 超小屏幕适配
+  // 超小屏幕适配 - 增加顶部边距，防止工具栏和内容重叠
   @media (max-width: 480px) {
     &__page {
       --page-margin: 10px;
       --line-margin: 15px; // 使用px单位
-      --line-vertical-margin: 15px;
+      --line-vertical-margin: 80px; // 大幅增加顶部边距，防止工具栏和内容重叠
+      --page-number-height: 40px;
     }
   }
 }

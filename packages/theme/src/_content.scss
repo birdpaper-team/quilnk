@@ -1,36 +1,37 @@
 @use "mixins/mixins.scss" as *;
 
 // 内容区域样式
-@include b("editor") {
-  // 内容区域 (可编辑)
-  &__content {
-    position: absolute;
-    top: var(--line-vertical-margin);
-    left: var(--line-margin);
-    right: var(--line-margin);
-    bottom: calc(var(--line-vertical-margin) + var(--page-number-height));
-    outline: none;
-    font-size: 16px;
-    line-height: var(--line-height);
-    color: var(--bp-gray-8);
-    word-break: break-word;
-    caret-color: #1f6fff;
-    overflow: hidden;
-    letter-spacing: 1px;
-    display: block;
-    padding: 0;
+  @include b("editor") {
+    // 内容区域 (可编辑)
+    &__content {
+      position: absolute;
+      top: var(--line-vertical-margin);
+      left: var(--line-margin);
+      right: var(--line-margin);
+      bottom: calc(var(--line-vertical-margin) + var(--page-number-height));
+      outline: none;
+      font-size: 16px;
+      line-height: var(--line-height);
+      color: var(--bp-gray-8);
+      word-break: break-word;
+      caret-color: #1f6fff;
+      overflow: hidden;
+      letter-spacing: 1px;
+      display: block;
+      padding: 0;
 
-    // 移动端样式调整
-    @media (max-width: 768px) {
-      font-size: 14px;
-      overflow-y: auto; // 允许滚动
-      -webkit-overflow-scrolling: touch; // iOS 平滑滚动
-      min-height: calc(100vh - 40px); // 确保有足够的高度
-      bottom: auto; // 让高度自适应
-    }
+      // 移动端样式调整 - 允许纵向填充
+      @media (max-width: 768px) {
+        font-size: 14px;
+        overflow-y: auto; // 允许纵向滚动
+        -webkit-overflow-scrolling: touch; // iOS 平滑滚动
+        min-height: calc(100vh - var(--line-vertical-margin) * 2 - var(--page-number-height)); // 确保有足够的高度
+        bottom: calc(var(--line-vertical-margin) + var(--page-number-height)); // 保持固定底部位置
+        line-height: var(--line-height);
+      }
 
-    // 确保br标签的高度与行高一致
-    br {
+      // 确保br标签的高度与行高一致
+      br {
       display: block;
       margin: 0;
       line-height: var(--line-height);
