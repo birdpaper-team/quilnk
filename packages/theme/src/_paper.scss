@@ -29,14 +29,15 @@
     
     overflow: hidden;
     
-    // 移动端自适应 - 宽度撑满，高度自适应，增加上下边距
+    // 移动端自适应 - 宽度撑满，高度自适应
     @media (max-width: 768px) {
       width: 100vw;
-      height: auto;
-      min-height: 100vh;
+      height: auto; // 高度自适应内容
+      min-height: calc(100vh - 40px); // 最小高度，确保有足够的空间
       margin: 20px 0; // 增加上下外边距，为工具栏和分页腾出更多空间
       border-radius: 0;
       box-shadow: none;
+      overflow: visible; // 允许内容溢出，由分页逻辑处理
     }
     
     // 纸张边缘效果
@@ -75,9 +76,10 @@
     display: flex;
     flex-direction: column;
     
-    // 移动端边距调整 - 增加上下边距，为工具栏和分页腾出更多空间
+    // 移动端边距调整 - 保持与PC端一致的行高和内容区域比例
     @media (max-width: 768px) {
       --page-margin: 20px; // 增加整体边距
+      --line-height: 30px; // 保持与PC端一致的行高（8mm约等于30px）
       --line-margin: 20px; // 使用px单位，更适合移动端
       --line-vertical-margin: 60px; // 增加上下边距，为工具栏腾出更多空间
       --page-number-height: 40px; // 增加页码区域高度，为分页腾出更多空间
@@ -135,6 +137,13 @@
 
   // 超小屏幕适配 - 增加顶部边距，防止工具栏和内容重叠
   @media (max-width: 480px) {
+    &__paper {
+      margin: 30px 0; // 增加上下外边距
+      height: auto; // 高度自适应内容
+      min-height: calc(100vh - 60px); // 最小高度，确保有足够的空间
+      overflow: visible; // 允许内容溢出，由分页逻辑处理
+    }
+    
     &__page {
       --page-margin: 10px;
       --line-margin: 15px; // 使用px单位

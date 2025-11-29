@@ -85,7 +85,7 @@
     <!-- 引用 -->
     <div class="quilnk-editor__toolbar-group">
       <button class="quilnk-editor__toolbar-btn" type="button" :aria-label="'添加引用'" @click="$emit('command', 'toggleQuote')">
-        <IconQuoteText size="16" />
+        <IconDoubleQuotesL size="16" />
       </button>
     </div>
   </div>
@@ -103,7 +103,7 @@ import {
   IconAlignJustify,
   IconIndentIncrease,
   IconIndentDecrease,
-  IconQuoteText,
+  IconDoubleQuotesL,
 } from "birdpaper-icon";
 
 defineOptions({ name: "EditorToolbar" });

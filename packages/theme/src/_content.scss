@@ -20,14 +20,14 @@
       display: block;
       padding: 0;
 
-      // 移动端样式调整 - 允许纵向填充
+      // 移动端样式调整 - 保持与PC端一致的字体大小和行高，确保内容数量一致
       @media (max-width: 768px) {
-        font-size: 14px;
-        overflow-y: auto; // 允许纵向滚动
-        -webkit-overflow-scrolling: touch; // iOS 平滑滚动
-        min-height: calc(100vh - var(--line-vertical-margin) * 2 - var(--page-number-height)); // 确保有足够的高度
+        font-size: 16px; // 保持与PC端一致的字体大小
+        overflow: hidden; // 不允许滚动，文字固定在纸张上
+        min-height: auto;
         bottom: calc(var(--line-vertical-margin) + var(--page-number-height)); // 保持固定底部位置
-        line-height: var(--line-height);
+        line-height: var(--line-height); // 保持与PC端一致的行高
+        letter-spacing: 1px; // 保持与PC端一致的字间距
       }
 
       // 确保br标签的高度与行高一致
@@ -302,10 +302,10 @@
     }
   }
 
-  // 超小屏幕适配 - 内容相关
+  // 超小屏幕适配 - 内容相关，保持与PC端一致的字体大小
   @media (max-width: 480px) {
     &__content {
-      font-size: 13px;
+      font-size: 16px; // 保持与PC端一致的字体大小
     }
   }
 }
