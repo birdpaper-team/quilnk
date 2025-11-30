@@ -3,7 +3,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "demo:dev": "pnpm run -C demo dev"
+    "demo:dev": "pnpm run -C demo dev",
+    "demo:build": "pnpm run -C demo build",
+    "demo:preview": "pnpm run -C demo preview",
+    "build": "node build.mjs",
+    "build:components": "pnpm run -C packages/components build",
+    "build:theme": "pnpm run -C packages/theme build",
+    "build:all": "pnpm run build:components && pnpm run build:theme",
+    "typecheck": "pnpm run -C packages/components typecheck"
   },
   "keywords": [],
   "author": "",

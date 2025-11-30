@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "/Users/liluanhui/Desktop/code/github/quilnk/dist/quilnk/types",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "packages/quilnk/*.ts",
+    "!packages/quilnk/node_modules"
+  ]
+}
