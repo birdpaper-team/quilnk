@@ -4,18 +4,28 @@
       <bp-button type="plain" status="gray" @click="addPage">新增一页</bp-button>
       <bp-button type="plain" status="gray" @click="printContent">打印内容</bp-button>
       <bp-button type="plain" status="gray" @click="initializeContent">初始化内容</bp-button>
+      <bp-button type="plain" status="gray" @click="syncToViewer">同步到查看器</bp-button>
     </div>
 
     <div class="container">
-      <quilnk-editor ref="editorRef" />
+      <div class="editor-section">
+        <h2>编辑器</h2>
+        <quilnk-editor ref="editorRef" />
+      </div>
+      <div class="viewer-section">
+        <h2>查看器</h2>
+        <quilnk-viewer ref="viewerRef" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { QuilnkEditor, QuilnkViewer } from "@quilnk/components";
 
 const editorRef = ref();
+const viewerRef = ref();
 const addPage = () => {
   editorRef.value?.addPage();
 };
@@ -28,6 +38,13 @@ const initializeContent = () => {
 
 const printContent = () => {
   console.log(editorRef.value?.getContent());
+};
+
+const syncToViewer = () => {
+  const content = editorRef.value?.getContent();
+  if (content) {
+    viewerRef.value?.setContent(content);
+  }
 };
 </script>
 

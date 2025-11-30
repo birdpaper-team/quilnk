@@ -2,7 +2,7 @@
   <div :class="clsBlockName">
     <div class="quilnk-editor__stage">
       <!-- 只渲染一页内容 -->
-      <div class="quilnk-editor__paper">
+      <div class="quilnk-editor__paper" @click="onPaperClick">
         <!-- 页面工具栏，只在当前页聚焦时显示 -->
         <div class="quilnk-editor__toolbar-container">
           <transition name="toolbar-fade">
@@ -120,6 +120,19 @@ function onPageBlur() {
       isToolbarVisible.value = false;
     }
   }, 100);
+}
+
+// 纸张点击事件处理
+function onPaperClick(event: MouseEvent) {
+  // 检查点击的目标是否是纸张本身或纸张的直接子元素（除了工具栏）
+  const target = event.target as HTMLElement;
+  const paperElement = target.closest('.quilnk-editor__paper');
+  const contentElement = pageRefs.value[0];
+  
+  // 如果点击的是纸张区域，且不是内容区域本身，才聚焦到内容区域
+  if (paperElement && contentElement && target !== contentElement && !contentElement.contains(target)) {
+    focusPage(0);
+  }
 }
 
 // 监听选区变化，更新格式状态
