@@ -53,6 +53,12 @@ cssFiles.forEach(file => {
 const tempAssetsDir = resolve(tempThemeDir, 'assets');
 if (fs.existsSync(tempAssetsDir)) {
   execSync(`cp -r ${tempAssetsDir} ${quilnkDistDir}/`, { stdio: 'inherit' });
+  // 复制完成后将assets目录更名为style
+  const destAssetsDir = resolve(quilnkDistDir, 'assets');
+  const destStyleDir = resolve(quilnkDistDir, 'style');
+  if (fs.existsSync(destAssetsDir)) {
+    execSync(`mv ${destAssetsDir} ${destStyleDir}`, { stdio: 'inherit' });
+  }
 }
 
 // 清理临时目录

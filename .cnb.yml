@@ -1,0 +1,23 @@
+$:
+  # tag push 时触发
+  tag_push:
+    - docker:
+        image: node:18
+      stages:
+        - name: show version
+          script: node -v
+        - name: install
+          script: npm install -g pnpm && pnpm install
+        - name: build
+          script: pnpm run build
+        - name: update version
+          script: cd ./dist/quilnk && npm version $CNB_BRANCH --no-git-tag-version
+        - name: npm publish
+          image: tencentcom/npm
+          settings:
+            username: $CNB_TOKEN_USER_NAME
+            token: $CNB_TOKEN
+            email: $CNB_COMMITTER_EMAIL
+            registry: https://npm.cnb.cool/birdpaper-design/quilnk-preview/-/packages/
+            folder: ./dist/quilnk
+            fail_on_version_conflict: true
