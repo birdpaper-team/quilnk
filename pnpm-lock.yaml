@@ -18,11 +18,11 @@ importers:
         specifier: ^10.1.2
         version: 10.11.1(vue@3.5.20(typescript@5.7.3))
       birdpaper-icon:
-        specifier: ^0.9.0
-        version: 0.9.0(vue@3.5.20(typescript@5.7.3))
+        specifier: ^0.9.2
+        version: 0.9.2(vue@3.5.20(typescript@5.7.3))
       birdpaper-ui:
-        specifier: ^3.0.0-alpha.64
-        version: 3.0.0-alpha.64(vue@3.5.20(typescript@5.7.3))
+        specifier: ^3.0.0-alpha.72
+        version: 3.0.0-alpha.72(vue@3.5.20(typescript@5.7.3))
       radash:
         specifier: ^12.1.0
         version: 12.1.1
@@ -95,7 +95,11 @@ importers:
         specifier: ^2.0.19
         version: 2.2.12(typescript@5.9.2)
 
-  packages/components: {}
+  packages/components:
+    dependencies:
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.20(typescript@5.9.2)
 
   packages/quilnk:
     dependencies:
@@ -106,8 +110,11 @@ importers:
         specifier: ^10.11.0
         version: 10.11.1(vue@3.5.20(typescript@5.9.2))
       birdpaper-icon:
-        specifier: 0.9.0
-        version: 0.9.0(vue@3.5.20(typescript@5.9.2))
+        specifier: ^0.9.2
+        version: 0.9.2(vue@3.5.20(typescript@5.9.2))
+      birdpaper-ui:
+        specifier: ^3.0.0-alpha.72
+        version: 3.0.0-alpha.72(vue@3.5.20(typescript@5.9.2))
       radash:
         specifier: ^12.1.0
         version: 12.1.1
@@ -972,8 +979,11 @@ packages:
   birdpaper-icon@0.9.0:
     resolution: {integrity: sha512-rpwqBYUUU5dklzQG02ATCZgmjBZgzV7jPQFkCP1HEpYAoYSSQH/aUEEiVrJz/o4NIs81R90Q7dgLcqgYNVtg6g==}
 
-  birdpaper-ui@3.0.0-alpha.64:
-    resolution: {integrity: sha512-v2y9ZWqTCWGaiKudHDq1Dmf4uZM2wmsfhd8CQQKWPxoTRHCVHQ+JhPzy0GQYCdEYoEpZwDdarH74Tlc4MjIiyg==}
+  birdpaper-icon@0.9.2:
+    resolution: {integrity: sha512-AELa7XEnSvg/Di1vwREeNRJDoqTY82YUL5uuS9VFl6wwsjfEvAUq6abf8nBw5eJOKJrmwKnocgiVl5H72Kb50g==}
+
+  birdpaper-ui@3.0.0-alpha.72:
+    resolution: {integrity: sha512-zyKQ4aCtVeg97jSsyUeoM+scofMVgAnYT4+D4eqoOeT5W50/ZgKbvVABWQhFFqoRFlWjXkr/v9xSZwSjmohr5Q==}
 
   birpc@2.5.0:
     resolution: {integrity: sha512-VSWO/W6nNQdyP520F1mhf+Lc2f8pjGQOtoHHm7Ze8Go1kX7akpVIrtTa0fn+HB0QJEDVacl6aO08YE0PgXfdnQ==}
@@ -2393,11 +2403,38 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  birdpaper-ui@3.0.0-alpha.64(vue@3.5.20(typescript@5.7.3)):
+  birdpaper-icon@0.9.2(vue@3.5.20(typescript@5.7.3)):
+    dependencies:
+      '@vueuse/components': 11.3.0(vue@3.5.20(typescript@5.7.3))
+      '@vueuse/core': 10.11.1(vue@3.5.20(typescript@5.7.3))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
+  birdpaper-icon@0.9.2(vue@3.5.20(typescript@5.9.2)):
+    dependencies:
+      '@vueuse/components': 11.3.0(vue@3.5.20(typescript@5.9.2))
+      '@vueuse/core': 10.11.1(vue@3.5.20(typescript@5.9.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
+  birdpaper-ui@3.0.0-alpha.72(vue@3.5.20(typescript@5.7.3)):
     dependencies:
       '@vueuse/components': 11.3.0(vue@3.5.20(typescript@5.7.3))
       '@vueuse/core': 10.11.1(vue@3.5.20(typescript@5.7.3))
       birdpaper-icon: 0.9.0(vue@3.5.20(typescript@5.7.3))
+      dayjs: 1.11.18
+      radash: 12.1.1
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
+  birdpaper-ui@3.0.0-alpha.72(vue@3.5.20(typescript@5.9.2)):
+    dependencies:
+      '@vueuse/components': 11.3.0(vue@3.5.20(typescript@5.9.2))
+      '@vueuse/core': 10.11.1(vue@3.5.20(typescript@5.9.2))
+      birdpaper-icon: 0.9.0(vue@3.5.20(typescript@5.9.2))
       dayjs: 1.11.18
       radash: 12.1.1
     transitivePeerDependencies:
