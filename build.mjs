@@ -16,12 +16,16 @@ mkdirSync(quilnkDistDir, { recursive: true });
 
 console.log('开始构建组件库...');
 
-// 1. 构建主组件库 (ES 和 CJS 格式)
-console.log('1. 构建主组件库...');
+// 1. 构建components包
+console.log('1. 构建components包...');
+execSync('pnpm run build:components', { stdio: 'inherit' });
+
+// 2. 构建主组件库 (ES 和 CJS 格式)
+console.log('2. 构建主组件库...');
 execSync('vite build', { stdio: 'inherit' });
 
-// 2. 构建主题样式
-console.log('2. 构建主题样式...');
+// 3. 构建主题样式
+console.log('3. 构建主题样式...');
 const themeDistDir = resolve(quilnkDistDir, 'theme');
 mkdirSync(themeDistDir, { recursive: true });
 
@@ -64,12 +68,12 @@ if (fs.existsSync(tempAssetsDir)) {
 // 清理临时目录
 rmSync(tempThemeDir, { recursive: true, force: true });
 
-// 3. 复制SCSS源文件到dist/quilnk/theme，方便用户自定义主题
-console.log('3. 复制SCSS源文件...');
+// 4. 复制SCSS源文件到dist/quilnk/theme，方便用户自定义主题
+console.log('4. 复制SCSS源文件...');
 execSync('cp -r packages/theme/src dist/quilnk/theme/', { stdio: 'inherit' });
 
-// 4. 生成类型定义
-console.log('4. 生成类型定义...');
+// 5. 生成类型定义
+console.log('5. 生成类型定义...');
 const typesDir = resolve(quilnkDistDir, 'types');
 mkdirSync(typesDir, { recursive: true });
 
@@ -86,8 +90,8 @@ quilnkTsFiles.forEach(file => {
   console.log(`复制 ${file} 到 ${destPath}`);
 });
 
-// 5. 复制package.json、README.md和global.d.ts
-console.log('5. 复制package.json、README.md和global.d.ts...');
+// 6. 复制package.json、README.md和global.d.ts
+console.log('6. 复制package.json、README.md和global.d.ts...');
 
 // 复制根目录的README.md
 const rootReadmePath = resolve(__dirname, 'README.md');
