@@ -1,5 +1,5 @@
 <template>
-  <div :class="clsBlockName">
+  <div :class="clsBlockName" ref="rootElement">
     <div class="quilnk-editor__stage">
       <!-- 只渲染一页内容 -->
       <div class="quilnk-editor__paper" @click="onPaperClick">
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, nextTick, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, nextTick, ref, watch } from "vue";
 import { usePageManagement } from "./hooks/usePageManagement";
 import { useKeyboardEvents } from "./hooks/useKeyboardEvents";
 import { usePasteHandling } from "./hooks/usePasteHandling";
@@ -41,6 +41,7 @@ defineOptions({ name: "QuilnkEditor" });
 const props = defineProps<{
   modelValue?: string;
   placeholder?: string;
+  theme?: 'light' | 'dark' | 'system';
 }>();
 
 const emit = defineEmits<{
@@ -63,6 +64,43 @@ const currentFormat = ref({
   justifyRight: false,
   justifyFull: false,
 });
+
+// 主题相关逻辑
+const rootElement = ref<HTMLElement | null>(null);
+
+// 计算当前应该使用的主题
+const currentTheme = computed(() => {
+  if (props.theme === 'light' || props.theme === 'dark') {
+    return props.theme;
+  }
+  // 如果是 'system' 或未指定，检测系统主题
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+});
+
+// 根据主题添加或移除 dark 类名
+function updateTheme() {
+  if (rootElement.value) {
+    if (currentTheme.value === 'dark') {
+      rootElement.value.classList.add('dark');
+    } else {
+      rootElement.value.classList.remove('dark');
+    }
+  }
+}
+
+// 监听主题变化
+watch(() => props.theme, updateTheme, { immediate: true });
+
+// 监听系统主题变化
+function setupSystemThemeListener() {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', updateTheme);
+  
+  // 组件卸载时移除监听器
+  onUnmounted(() => {
+    mediaQuery.removeEventListener('change', updateTheme);
+  });
+}
 
 const {
   pages,
@@ -161,6 +199,12 @@ onMounted(() => {
 
   // 设置选区监听
   setupSelectionListener();
+  
+  // 设置系统主题监听
+  setupSystemThemeListener();
+  
+  // 初始化主题
+  updateTheme();
 });
 
 // 执行编辑器命令

@@ -25,7 +25,7 @@
       radial-gradient(1.2px 1.2px at 35% 65%, rgba(0,0,0,0.006) 0, rgba(0,0,0,0) 100%),
       radial-gradient(0.9px 0.9px at 75% 25%, rgba(0,0,0,0.005) 0, rgba(0,0,0,0) 100%),
       /* 纸张基色 - 纯白色 */
-      #ffffff;
+      var(--bp-gray-0);
     
     overflow: hidden;
     
@@ -58,6 +58,30 @@
       border-radius: 0.5px;
       background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%);
       pointer-events: none;
+    }
+    
+    // 深色模式下的纸张样式优化
+    .dark & {
+      // 去掉渐变纹理，只保留基色，视觉更柔和
+      background: var(--bp-gray-0);
+      
+      // 调整阴影效果，更适合深色模式
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 1px 2px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.06),
+        0 8px 24px rgba(0, 0, 0, 0.04);
+      
+      // 调整边缘效果，更柔和
+      &::before {
+        border: 0.3px solid rgba(255,255,255,0.08);
+      }
+      
+      // 去掉内部微光效果，或调整为更适合深色模式的效果
+      &::after {
+        display: none;
+      }
     }
   }
 
