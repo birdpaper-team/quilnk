@@ -1,10 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
-import { rmSync } from 'fs';
-
-// 清理dist目录
-rmSync(resolve(__dirname, 'dist'), { recursive: true, force: true });
 
 export default defineConfig({
   plugins: [vue()],
