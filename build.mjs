@@ -112,7 +112,7 @@ const packageJson = JSON.parse(readFileSync(quilnkPackagePath, 'utf-8'));
 writeFileSync(destPackagePath, JSON.stringify(packageJson, null, 2), 'utf-8');
 
 // 复制global.d.ts文件
-const globalDtsPath = resolve(__dirname, 'packages/quilnk/global.d.ts');
+const globalDtsPath = resolve(__dirname, 'global.d.ts');
 const destGlobalDtsPath = resolve(quilnkDistDir, 'global.d.ts');
 copyFileSync(globalDtsPath, destGlobalDtsPath);
 console.log(`复制 global.d.ts 到 ${destGlobalDtsPath}`);

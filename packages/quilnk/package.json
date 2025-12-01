@@ -55,6 +55,7 @@
     "es",
     "lib",
     "theme",
+    "style",
     "types",
     "global.d.ts",
     "README.md",
