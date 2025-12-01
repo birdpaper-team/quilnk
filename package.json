@@ -6,10 +6,8 @@
     "demo:dev": "pnpm run -C demo dev",
     "demo:build": "pnpm run -C demo build",
     "demo:preview": "pnpm run -C demo preview",
-    "build": "node build.mjs",
-    "build:components": "pnpm run -C packages/components build",
-    "build:theme": "pnpm run -C packages/theme build",
-    "build:all": "pnpm run build:components && pnpm run build:theme",
+    "clean": "rimraf dist && pnpm run -r --parallel clean",
+    "build": "pnpm run clean && pnpm run -C scripts/build start",
     "typecheck": "pnpm run -C packages/components typecheck"
   },
   "keywords": [],
@@ -27,15 +25,19 @@
   "devDependencies": {
     "@types/node": "^18.13.0",
     "@unocss/reset": "^0.61.7",
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitejs/plugin-vue": "^5.1.3",
     "dayjs": "^1.11.10",
     "oxlint": "^0.15.10",
     "sass": "^1.77.8",
     "sass-loader": "^14.1.0",
+    "gulp-autoprefixer": "^9.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "rimraf": "^3.0.2",
     "tsx": "^4.7.1",
     "typescript": "~5.7.3",
-    "vite": "^6.1.0",
+    "vite": "^5.4.1",
     "vite-plugin-vue-devtools": "^7.7.2",
-    "vue-tsc": "^2.2.2"
+    "vue-tsc": "^2.2.2",
+    "gulp-concat": "^2.6.1"
   }
 }

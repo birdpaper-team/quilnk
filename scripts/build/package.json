@@ -1,0 +1,15 @@
+{
+  "name": "@quilnk/build",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "gulp --require @esbuild-kit/cjs-loader -f gulpfile.ts"
+  },
+  "devDependencies": {
+    "@esbuild-kit/cjs-loader": "^2.2.1",
+    "@types/gulp": "^4.0.17",
+    "fast-glob": "^3.3.2",
+    "gulp": "^4.0.2",
+    "gulp-sass": "^5.1.0",
+    "vite-plugin-dts": "^4.4.0"
+  }
+}
