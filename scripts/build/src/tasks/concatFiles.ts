@@ -7,7 +7,7 @@ import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
 
 export async function concatFiles() {
-  const sass = gulpSass(dartSass);
+  const sass = gulpSass(dartSass as any);
   const outDir = join(distPkgRoot, "theme");
 
   const cssDir = join(outDir, "src");

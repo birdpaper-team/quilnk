@@ -62,12 +62,12 @@ export async function buildModules() {
       },
     },
     plugins: [
-      dts({
+      (dts({
         root: quilnkRoot,
         exclude: ["node_modules"],
         outDir: join(distPkgRoot, "types"),
         insertTypesEntry: true,
-      }),
+      }) as unknown as any),
       vue(),
     ],
   });
