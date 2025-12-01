@@ -161,10 +161,19 @@ const destPackagePath = resolve(quilnkDistDir, 'package.json');
 
 const packageJson = JSON.parse(readFileSync(quilnkPackagePath, 'utf-8'));
 
-// 修改package.json中的一些字段（如果需要）
-// packageJson.main = 'lib/index.cjs';
-// packageJson.module = 'es/index.mjs';
-// packageJson.types = 'types/index.d.ts';
+// 确保正确设置package.json中的入口字段
+packageJson.main = 'lib/index.cjs';
+packageJson.module = 'es/index.mjs';
+packageJson.types = 'types/index.d.ts';
+// 简化exports配置，避免路径解析冲突
+packageJson.exports = {
+  ".": {
+    "types": "./types/index.d.ts",
+    "import": "./es/index.mjs",
+    "require": "./lib/index.cjs"
+  },
+  "./package.json": "./package.json"
+};
 
 writeFileSync(destPackagePath, JSON.stringify(packageJson, null, 2), 'utf-8');
 
