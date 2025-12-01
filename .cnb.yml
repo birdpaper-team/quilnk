@@ -18,6 +18,6 @@ $:
             username: $CNB_TOKEN_USER_NAME
             token: $CNB_TOKEN
             email: $CNB_COMMITTER_EMAIL
-            registry: https://npm.cnb.cool/birdpaper-design/quilnk-preview/-/packages/
+            registry: https://npm.cnb.cool/birdpaper-design/birdpaper-ui-preview/-/packages/
             folder: ./dist/quilnk
             fail_on_version_conflict: true
