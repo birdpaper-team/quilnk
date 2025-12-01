@@ -8,7 +8,7 @@
   "main": "lib/index.cjs",
   "module": "es/index.mjs",
   "types": "types/index.d.ts",
-  "exports": {
+ "exports": {
     ".": {
       "types": "./types/index.d.ts",
       "import": "./es/index.mjs",
