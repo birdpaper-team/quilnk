@@ -6,7 +6,7 @@ export const installer = (components: any[] = []) => {
       if (typeof c === "function" || typeof c.install === "function") {
         app.use(c);
       } else {
-        app.component(c?.name, c);
+        app.component(`${"Quilnk"}${c?.name}`, c);
       }
     });
   };

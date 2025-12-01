@@ -21,8 +21,9 @@
 <script lang="ts" setup>
 import { computed, ref, watch, onMounted, onUnmounted } from "vue";
 import { usePageManagement } from "./hooks/usePageManagement";
+import { useNamespace } from "@quilnk/hooks";
 
-defineOptions({ name: "QuilnkViewer" });
+defineOptions({ name: "Viewer" });
 
 const props = defineProps<{
   modelValue?: string;
@@ -34,7 +35,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
-const clsBlockName = "quilnk-editor";
+const { clsBlockName } = useNamespace("editor");
 
 // 内部内容状态
 const content = ref(props.modelValue || "");

@@ -1,7 +1,7 @@
 declare module "vue" {
   export interface GlobalComponents {
-    QuilnkEditor: typeof import("quilnk")["QuilnkEditor"];
-    QuilnkViewer: typeof import("quilnk")["QuilnkViewer"];
+    QuilnkEditor: typeof import("quilnk")["Editor"];
+    QuilnkViewer: typeof import("quilnk")["Viewer"];
   }
 }
 

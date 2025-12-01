@@ -1,0 +1,17 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  background-color: #f7f7f7;
+  height: 100%;
+}
+body {
+  margin: 0;
+}

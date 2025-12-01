@@ -35,20 +35,21 @@ import { useKeyboardEvents } from "./hooks/useKeyboardEvents";
 import { usePasteHandling } from "./hooks/usePasteHandling";
 import { useDataSync } from "./hooks/useDataSync";
 import EditorToolbar from "./components/EditorToolbar.vue";
+import { useNamespace } from "@quilnk/hooks";
 
-defineOptions({ name: "QuilnkEditor" });
+defineOptions({ name: "Editor" });
 
 const props = defineProps<{
   modelValue?: string;
   placeholder?: string;
-  theme?: 'light' | 'dark' | 'system';
+  theme?: "light" | "dark" | "system";
 }>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
-const clsBlockName = "quilnk-editor";
+const { clsBlockName } = useNamespace("editor");
 
 // 工具栏显示状态
 const isToolbarVisible = ref(false);
@@ -70,20 +71,20 @@ const rootElement = ref<HTMLElement | null>(null);
 
 // 计算当前应该使用的主题
 const currentTheme = computed(() => {
-  if (props.theme === 'light' || props.theme === 'dark') {
+  if (props.theme === "light" || props.theme === "dark") {
     return props.theme;
   }
   // 如果是 'system' 或未指定，检测系统主题
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 });
 
 // 根据主题添加或移除 dark 类名
 function updateTheme() {
   if (rootElement.value) {
-    if (currentTheme.value === 'dark') {
-      rootElement.value.classList.add('dark');
+    if (currentTheme.value === "dark") {
+      rootElement.value.classList.add("dark");
     } else {
-      rootElement.value.classList.remove('dark');
+      rootElement.value.classList.remove("dark");
     }
   }
 }
@@ -93,25 +94,18 @@ watch(() => props.theme, updateTheme, { immediate: true });
 
 // 监听系统主题变化
 function setupSystemThemeListener() {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  mediaQuery.addEventListener('change', updateTheme);
-  
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  mediaQuery.addEventListener("change", updateTheme);
+
   // 组件卸载时移除监听器
   onUnmounted(() => {
-    mediaQuery.removeEventListener('change', updateTheme);
+    mediaQuery.removeEventListener("change", updateTheme);
   });
 }
 
-const {
-  pages,
-  pageRefs,
-  currentPageIndex,
-  setPageRef,
-  setCurrentPage,
-  focusPage,
-  getPageCount,
-  getCurrentPageIndex,
-} = usePageManagement(props.modelValue || "");
+const { pages, pageRefs, currentPageIndex, setPageRef, setCurrentPage, focusPage, getPageCount, getCurrentPageIndex } = usePageManagement(
+  props.modelValue || ""
+);
 
 const { onPaste } = usePasteHandling();
 
@@ -164,9 +158,9 @@ function onPageBlur() {
 function onPaperClick(event: MouseEvent) {
   // 检查点击的目标是否是纸张本身或纸张的直接子元素（除了工具栏）
   const target = event.target as HTMLElement;
-  const paperElement = target.closest('.quilnk-editor__paper');
+  const paperElement = target.closest(".quilnk-editor__paper");
   const contentElement = pageRefs.value[0];
-  
+
   // 如果点击的是纸张区域，且不是内容区域本身，才聚焦到内容区域
   if (paperElement && contentElement && target !== contentElement && !contentElement.contains(target)) {
     focusPage(0);
@@ -199,10 +193,10 @@ onMounted(() => {
 
   // 设置选区监听
   setupSelectionListener();
-  
+
   // 设置系统主题监听
   setupSystemThemeListener();
-  
+
   // 初始化主题
   updateTheme();
 });
@@ -222,17 +216,17 @@ function executeCommand(command: string, value?: string) {
   }
 
   // 处理缩进命令，使用text-indent而不是默认的margin
-  if (command === 'indent' || command === 'outdent') {
+  if (command === "indent" || command === "outdent") {
     const range = selection.getRangeAt(0);
-    
+
     // 查找当前选择范围内的所有p标签
     const pTags = new Set<HTMLElement>();
-    
+
     // 获取选择范围内的所有元素
     const container = range.commonAncestorContainer;
     let startNode = range.startContainer;
     let endNode = range.endContainer;
-    
+
     // 处理简单情况：选择范围在同一个节点内
     if (startNode === endNode) {
       // 向上查找，直到找到p标签或body
@@ -240,10 +234,10 @@ function executeCommand(command: string, value?: string) {
       if (currentNode.nodeType === Node.TEXT_NODE) {
         currentNode = currentNode.parentNode as Node;
       }
-      
+
       while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
         const element = currentNode as HTMLElement;
-        if (element.tagName.toLowerCase() === 'p') {
+        if (element.tagName.toLowerCase() === "p") {
           pTags.add(element);
           break;
         }
@@ -252,33 +246,33 @@ function executeCommand(command: string, value?: string) {
     } else {
       // 处理复杂情况：选择范围跨多个节点
       // 这里简化处理，直接获取所有p标签
-      const allPTags = currentPageElement.querySelectorAll('p');
-      allPTags.forEach(pTag => pTags.add(pTag as HTMLElement));
+      const allPTags = currentPageElement.querySelectorAll("p");
+      allPTags.forEach((pTag) => pTags.add(pTag as HTMLElement));
     }
-    
+
     // 如果没有找到p标签，尝试获取当前光标所在的p标签
     if (pTags.size === 0) {
       let currentNode = range.startContainer;
       if (currentNode.nodeType === Node.TEXT_NODE) {
         currentNode = currentNode.parentNode as Node;
       }
-      
+
       while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
         const element = currentNode as HTMLElement;
-        if (element.tagName.toLowerCase() === 'p') {
+        if (element.tagName.toLowerCase() === "p") {
           pTags.add(element);
           break;
         }
         currentNode = currentNode.parentNode;
       }
     }
-    
+
     // 应用缩进或取消缩进
-    pTags.forEach(pTag => {
+    pTags.forEach((pTag) => {
       // 直接读取元素的style.textIndent属性，获取原始的em值
       let currentIndent = 0;
       const styleIndent = pTag.style.textIndent;
-      
+
       if (styleIndent) {
         // 提取em值
         const match = styleIndent.match(/^(\d+)em$/);
@@ -286,39 +280,39 @@ function executeCommand(command: string, value?: string) {
           currentIndent = parseInt(match[1], 10);
         }
       }
-      
-      if (command === 'indent') {
+
+      if (command === "indent") {
         // 增加缩进 - 在当前基础上增加2em
         const newIndent = currentIndent + 2;
         pTag.style.textIndent = `${newIndent}em`;
         // 清除可能冲突的样式
-        pTag.style.marginLeft = '0';
-        pTag.style.paddingLeft = '0';
+        pTag.style.marginLeft = "0";
+        pTag.style.paddingLeft = "0";
       } else {
         // 减少缩进 - 在当前基础上减少2em，最小为0
         const newIndent = Math.max(0, currentIndent - 2);
         pTag.style.textIndent = `${newIndent}em`;
         // 清除可能冲突的样式
-        pTag.style.marginLeft = '0';
-        pTag.style.paddingLeft = '0';
+        pTag.style.marginLeft = "0";
+        pTag.style.paddingLeft = "0";
         // 如果没有其他样式，移除style属性
-        if (pTag.getAttribute('style') === '') {
-          pTag.removeAttribute('style');
+        if (pTag.getAttribute("style") === "") {
+          pTag.removeAttribute("style");
         }
       }
     });
-  } else if (command === 'toggleQuote') {
+  } else if (command === "toggleQuote") {
     // 处理toggleQuote命令，用于添加/移除引用样式
     const range = selection.getRangeAt(0);
-    
+
     // 查找当前选择范围内的所有p标签
     const pTags = new Set<HTMLElement>();
-    
+
     // 获取选择范围内的所有元素
     const container = range.commonAncestorContainer;
     let startNode = range.startContainer;
     let endNode = range.endContainer;
-    
+
     // 处理简单情况：选择范围在同一个节点内
     if (startNode === endNode) {
       // 向上查找，直到找到p标签或body
@@ -326,10 +320,10 @@ function executeCommand(command: string, value?: string) {
       if (currentNode.nodeType === Node.TEXT_NODE) {
         currentNode = currentNode.parentNode as Node;
       }
-      
+
       while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
         const element = currentNode as HTMLElement;
-        if (element.tagName.toLowerCase() === 'p') {
+        if (element.tagName.toLowerCase() === "p") {
           pTags.add(element);
           break;
         }
@@ -338,35 +332,35 @@ function executeCommand(command: string, value?: string) {
     } else {
       // 处理复杂情况：选择范围跨多个节点
       // 这里简化处理，直接获取所有p标签
-      const allPTags = currentPageElement.querySelectorAll('p');
-      allPTags.forEach(pTag => pTags.add(pTag as HTMLElement));
+      const allPTags = currentPageElement.querySelectorAll("p");
+      allPTags.forEach((pTag) => pTags.add(pTag as HTMLElement));
     }
-    
+
     // 如果没有找到p标签，尝试获取当前光标所在的p标签
     if (pTags.size === 0) {
       let currentNode = range.startContainer;
       if (currentNode.nodeType === Node.TEXT_NODE) {
         currentNode = currentNode.parentNode as Node;
       }
-      
+
       while (currentNode && currentNode.nodeType === Node.ELEMENT_NODE) {
         const element = currentNode as HTMLElement;
-        if (element.tagName.toLowerCase() === 'p') {
+        if (element.tagName.toLowerCase() === "p") {
           pTags.add(element);
           break;
         }
         currentNode = currentNode.parentNode;
       }
     }
-    
+
     // 切换引用样式
-    pTags.forEach(pTag => {
-      if (pTag.classList.contains('quilnk-editor__content--quote')) {
+    pTags.forEach((pTag) => {
+      if (pTag.classList.contains("quilnk-editor__content--quote")) {
         // 移除引用样式
-        pTag.classList.remove('quilnk-editor__content--quote');
+        pTag.classList.remove("quilnk-editor__content--quote");
       } else {
         // 添加引用样式
-        pTag.classList.add('quilnk-editor__content--quote');
+        pTag.classList.add("quilnk-editor__content--quote");
       }
     });
   } else {

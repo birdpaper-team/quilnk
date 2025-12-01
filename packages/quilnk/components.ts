@@ -1,3 +1,3 @@
-import { QuilnkEditor, QuilnkViewer } from "@quilnk/components";
+import { Editor, Viewer } from "@quilnk/components";
 
-export default [QuilnkEditor, QuilnkViewer];
+export default [Editor, Viewer];

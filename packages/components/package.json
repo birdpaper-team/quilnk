@@ -2,6 +2,7 @@
   "name": "@quilnk/components",
   "version": "1.0.0",
   "dependencies": {
-    "@quilnk/theme": "workspace:*"
+    "@quilnk/theme": "workspace:*",
+    "@quilnk/hooks": "workspace:*"
   }
 }
