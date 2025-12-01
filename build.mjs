@@ -26,12 +26,8 @@ mkdirSync(quilnkDistDir, { recursive: true });
 
 console.log('开始构建组件库...');
 
-// 1. 构建components包
-console.log('1. 构建components包...');
-execSync('pnpm run -C packages/components build', { stdio: 'inherit' });
-
-// 2. 构建主组件库 (ES 和 CJS 格式)
-console.log('2. 构建主组件库...');
+// 1. 构建主组件库 (ES 和 CJS 格式)
+console.log('1. 构建主组件库...');
 execSync('vite build', { stdio: 'inherit' });
 
 // 3. 构建主题样式
@@ -169,14 +165,21 @@ const packageJson = JSON.parse(readFileSync(quilnkPackagePath, 'utf-8'));
 packageJson.main = 'lib/index.cjs';
 packageJson.module = 'es/index.mjs';
 packageJson.types = 'types/index.d.ts';
-// 简化exports配置，避免路径解析冲突
+// 更新exports配置，添加对样式文件的支持
 packageJson.exports = {
   ".": {
     "types": "./types/index.d.ts",
     "import": "./es/index.mjs",
     "require": "./lib/index.cjs"
   },
-  "./package.json": "./package.json"
+  "./style/index.css": {
+    "default": "./style/index.css"
+  },
+  "./global": {
+    "types": "./global.d.ts"
+  },
+  "./package.json": "./package.json",
+  "./*": "./*"
 };
 
 writeFileSync(destPackagePath, JSON.stringify(packageJson, null, 2), 'utf-8');
