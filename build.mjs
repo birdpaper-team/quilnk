@@ -26,8 +26,12 @@ mkdirSync(quilnkDistDir, { recursive: true });
 
 console.log('开始构建组件库...');
 
-// 1. 构建主组件库 (ES 和 CJS 格式)
-console.log('1. 构建主组件库...');
+// 1. 构建components包
+console.log('1. 构建components包...');
+execSync('pnpm run -C packages/components build', { stdio: 'inherit' });
+
+// 2. 构建主组件库 (ES 和 CJS 格式)
+console.log('2. 构建主组件库...');
 execSync('vite build', { stdio: 'inherit' });
 
 // 3. 构建主题样式
