@@ -10,8 +10,8 @@ function generatePageId(): string {
   return `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-export function usePageManagement(initialContent: string = '') {
-  const pages = ref<Page[]>([{ id: generatePageId(), content: initialContent }]);
+export function usePageManagement() {
+  const pages = ref<Page[]>([{ id: generatePageId(), content: '' }]);
   const currentPageIndex = ref(0);
   const pageRefs = ref<(HTMLDivElement | null)[]>([]);
 

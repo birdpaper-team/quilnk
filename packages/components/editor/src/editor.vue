@@ -40,13 +40,12 @@ import { useNamespace } from "@quilnk/hooks";
 defineOptions({ name: "Editor" });
 
 const props = defineProps<{
-  modelValue?: string;
   placeholder?: string;
   theme?: "light" | "dark" | "system";
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
+  (e: "change", content: string, word_count: number): void;
 }>();
 
 const { clsBlockName } = useNamespace("editor");
@@ -103,17 +102,13 @@ function setupSystemThemeListener() {
   });
 }
 
-const { pages, pageRefs, currentPageIndex, setPageRef, setCurrentPage, focusPage, getPageCount, getCurrentPageIndex } = usePageManagement(
-  props.modelValue || ""
-);
+const { pages, pageRefs, currentPageIndex, setPageRef, setCurrentPage, focusPage, getPageCount, getCurrentPageIndex } = usePageManagement();
 
 const { onPaste } = usePasteHandling();
 
-const { getContent, setContent, initializeContent, setupModelValueWatch, onInput, undo, redo } = useDataSync(
+const { getContent, setContent, initializeContent, onInput, undo, redo } = useDataSync(
   pages,
-  pageRefs,
-  props.modelValue || "",
-  emit
+  pageRefs
 );
 
 const { onKeyDown, onKeyPress } = useKeyboardEvents(pageRefs.value, undo, redo);
@@ -188,9 +183,6 @@ onMounted(() => {
     focusPage(0);
   });
 
-  // 设置modelValue监听
-  setupModelValueWatch(props.modelValue || "");
-
   // 设置选区监听
   setupSelectionListener();
 
@@ -200,6 +192,15 @@ onMounted(() => {
   // 初始化主题
   updateTheme();
 });
+
+// 监听内容变化，触发change事件
+watch(
+  () => getContent(),
+  (newContent) => {
+    // 触发change事件，传递内容和字数
+    emit('change', newContent, word_count.value);
+  }
+);
 
 // 执行编辑器命令
 function executeCommand(command: string, value?: string) {

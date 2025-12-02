@@ -26,23 +26,18 @@ import { useNamespace } from "@quilnk/hooks";
 defineOptions({ name: "Viewer" });
 
 const props = defineProps<{
-  modelValue?: string;
   placeholder?: string;
   theme?: 'light' | 'dark' | 'system';
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: string): void;
 }>();
 
 const { clsBlockName } = useNamespace("editor");
 
 // 内部内容状态
-const content = ref(props.modelValue || "");
+const content = ref("");
 
 const placeholder = computed(() => props.placeholder ?? "");
 
-const { setPageRef } = usePageManagement(props.modelValue || "");
+const { setPageRef } = usePageManagement();
 
 // 主题相关逻辑
 const rootElement = ref<HTMLElement | null>(null);
@@ -67,13 +62,6 @@ function updateTheme() {
   }
 }
 
-// 监听外部内容变化
-watch(() => props.modelValue, (newValue) => {
-  if (newValue !== undefined) {
-    content.value = newValue;
-  }
-});
-
 // 监听主题变化
 watch(() => props.theme, updateTheme, { immediate: true });
 
@@ -91,7 +79,6 @@ function setupSystemThemeListener() {
 // 设置内容方法
 function setContent(newContent: string) {
   content.value = newContent;
-  emit("update:modelValue", newContent);
 }
 
 // 组件挂载时初始化主题

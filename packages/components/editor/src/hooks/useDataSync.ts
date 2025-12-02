@@ -15,9 +15,7 @@ interface HistoryRecord {
 
 export function useDataSync(
   pages: { value: Page[] },
-  pageRefs: { value: (HTMLDivElement | null)[] },
-  initialContent: string = '',
-  emit: (e: 'update:modelValue', value: string) => void
+  pageRefs: { value: (HTMLDivElement | null)[] }
 ) {
   const { getCaretPosition, setCaretPosition } = useCaretManagement();
   
@@ -102,52 +100,7 @@ export function useDataSync(
 
   // 初始化内容 - 只处理一页内容
   function initializeContent() {
-    if (initialContent) {
-      // 只初始化第一页内容，忽略页面分隔符
-      pages.value[0].content = initialContent;
-
-      // 直接设置DOM内容
-      nextTick(() => {
-        if (pageRefs.value[0]) {
-          pageRefs.value[0].innerHTML = initialContent;
-        }
-      });
-    }
-  }
-
-  // 监听modelValue变化，同步到内部状态 - 只处理一页内容
-  function setupModelValueWatch(modelValue: string) {
-    watch(() => modelValue, (newValue) => {
-      if (!newValue) {
-        // 如果值为空，重置为单页空内容
-        pages.value = [{ id: `page-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, content: '' }];
-        pageRefs.value = [null];
-        
-        // 直接设置DOM内容
-        nextTick(() => {
-          if (pageRefs.value[0]) {
-            pageRefs.value[0].innerHTML = '';
-          }
-        });
-        return;
-      }
-
-      // 如果当前内容与新值相同，不更新
-      const currentContent = getContent();
-      if (currentContent === newValue) {
-        return;
-      }
-
-      // 只设置第一页内容，忽略页面分隔符
-      pages.value[0].content = newValue;
-      
-      // 直接设置DOM内容
-      nextTick(() => {
-        if (pageRefs.value[0]) {
-          pageRefs.value[0].innerHTML = newValue;
-        }
-      });
-    });
+    // 无需初始化内容，保持默认空状态
   }
 
   // 撤销操作
@@ -173,9 +126,6 @@ export function useDataSync(
             targetPageElement.focus();
             setCaretPosition(targetPageElement, record.caretPosition);
           }
-          
-          // 发送更新事件
-          emit('update:modelValue', record.content);
         });
       }
     }
@@ -204,9 +154,6 @@ export function useDataSync(
             targetPageElement.focus();
             setCaretPosition(targetPageElement, record.caretPosition);
           }
-          
-          // 发送更新事件
-          emit('update:modelValue', record.content);
         });
       }
     }
@@ -278,16 +225,12 @@ export function useDataSync(
     
     // 更新页面内容
     pages.value[pageIndex].content = target.innerHTML;
-
-    // 发送更新事件
-    emit('update:modelValue', getContent());
   }
 
   return {
     getContent,
     setContent,
     initializeContent,
-    setupModelValueWatch,
     onInput,
     undo,
     redo,
