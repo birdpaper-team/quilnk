@@ -376,6 +376,19 @@ function executeCommand(command: string, value?: string) {
   detectCurrentFormat();
 }
 
+// 计算文字数量
+const word_count = computed(() => {
+  // 获取当前内容
+  const content = getContent();
+  // 创建一个临时元素来解析HTML
+  const tempElement = document.createElement('div');
+  tempElement.innerHTML = content;
+  // 提取纯文本
+  const plainText = tempElement.textContent || tempElement.innerText || '';
+  // 统计字数（去除多余空格）
+  return plainText.trim().length;
+});
+
 // 暴露组件方法
 defineExpose({
   focusPage,
@@ -383,6 +396,7 @@ defineExpose({
   setContent,
   getPageCount,
   getCurrentPageIndex,
+  word_count,
 });
 
 const placeholder = computed(() => props.placeholder ?? "在这张纸上写点什么吧…");
