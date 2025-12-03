@@ -15,14 +15,11 @@
     </div>
 
     <div class="container">
-      <div class="editor-section">
-        <h2>编辑器</h2>
-        <quilnk-editor ref="editorRef" :theme="currentTheme" />
-      </div>
-      <div class="viewer-section">
+      <quilnk-editor ref="editorRef" :theme="currentTheme" />
+      <!-- <div class="viewer-section">
         <h2>查看器</h2>
         <quilnk-viewer ref="viewerRef" :theme="currentTheme" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -34,21 +31,21 @@ const editorRef = ref();
 const viewerRef = ref();
 
 // 主题相关状态
-const currentTheme = ref<'light' | 'dark' | 'system'>('system');
-const isSystemDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
+const currentTheme = ref<"light" | "dark" | "system">("system");
+const isSystemDark = ref(window.matchMedia("(prefers-color-scheme: dark)").matches);
 
 // 监听系统主题变化
 const setupSystemThemeListener = () => {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
   const handleChange = (e: MediaQueryListEvent) => {
     isSystemDark.value = e.matches;
   };
-  
-  mediaQuery.addEventListener('change', handleChange);
-  
+
+  mediaQuery.addEventListener("change", handleChange);
+
   onUnmounted(() => {
-    mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.removeEventListener("change", handleChange);
   });
 };
 
