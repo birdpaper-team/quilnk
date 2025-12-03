@@ -34,9 +34,14 @@
       width: 100%;
       height: auto; // 高度自适应内容
       min-height: calc(100vh - 40px); // 最小高度，确保有足够的空间
-      margin: 20px 0;
+      margin: 0;
       border-radius: 0;
-      box-shadow: none;
+      box-shadow: 
+        0 0 0 1px rgba(0, 0, 0, 0.02),
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 2px 4px rgba(0, 0, 0, 0.03),
+        0 4px 12px rgba(0, 0, 0, 0.02),
+        0 8px 24px rgba(0, 0, 0, 0.015);
       overflow: visible; // 允许内容溢出，由分页逻辑处理
     }
     
@@ -81,6 +86,16 @@
       // 去掉内部微光效果，或调整为更适合深色模式的效果
       &::after {
         display: none;
+      }
+      
+      // 移动端深色模式阴影
+      @media (max-width: 768px) {
+        box-shadow: 
+          0 0 0 1px rgba(255, 255, 255, 0.05),
+          0 1px 2px rgba(0, 0, 0, 0.1),
+          0 2px 4px rgba(0, 0, 0, 0.08),
+          0 4px 12px rgba(0, 0, 0, 0.06),
+          0 8px 24px rgba(0, 0, 0, 0.04);
       }
     }
   }
@@ -163,7 +178,7 @@
   // 超小屏幕适配 - 增加顶部边距，防止工具栏和内容重叠
   @media (max-width: 480px) {
     &__paper {
-      margin: 30px 0; // 增加上下外边距
+      margin: 0;
       height: auto; // 高度自适应内容
       min-height: calc(100vh - 60px); // 最小高度，确保有足够的空间
       overflow: visible; // 允许内容溢出，由分页逻辑处理

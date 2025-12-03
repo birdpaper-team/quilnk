@@ -90,7 +90,7 @@
 
   // 小屏幕适配
   @media (max-width: 900px) {
-    &__stage { padding: 16px 0 60px; }
+    &__stage { padding: 0; }
   }
   
   // 移动端全局优化
