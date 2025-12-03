@@ -5,7 +5,7 @@
   // 纸张容器
   &__paper {
     width: 210mm;
-    min-height: 297mm;
+    min-height: 148.5mm;
     border-radius: 1px;
     position: relative;
     flex-shrink: 0; // 防止页面被压缩
@@ -93,7 +93,7 @@
     --line-margin: 15mm; // 横线左右边距
     --line-vertical-margin: 20mm; // 横线上下边距
     height: auto; // 高度自适应内容
-    min-height: 297mm; // 最小高度为A4纸高度
+    min-height: 148.5mm; // 最小高度为A4纸高度的一半
     padding: var(--line-vertical-margin) var(--line-margin);
     box-sizing: border-box;
     position: relative; // 改为relative定位，以便高度自适应

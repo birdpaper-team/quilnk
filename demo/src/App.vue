@@ -1,7 +1,6 @@
 <template>
   <div class="wrap" :class="{ dark: currentTheme === 'dark' || (currentTheme === 'system' && isSystemDark) }">
     <div class="top-bar">
-      <bp-button type="plain" status="gray" @click="addPage">新增一页</bp-button>
       <bp-button type="plain" status="gray" @click="printContent">打印内容</bp-button>
       <bp-button type="plain" status="gray" @click="initializeContent">初始化内容</bp-button>
       <bp-button type="plain" status="gray" @click="syncToViewer">同步到查看器</bp-button>
