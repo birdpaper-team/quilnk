@@ -2,7 +2,8 @@
   "name": "@quilnk/components",
   "version": "1.0.0",
   "dependencies": {
+    "@quilnk/hooks": "workspace:*",
     "@quilnk/theme": "workspace:*",
-    "@quilnk/hooks": "workspace:*"
+    "better-scroll": "^2.5.1"
   }
 }

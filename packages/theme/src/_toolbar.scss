@@ -20,13 +20,12 @@
     }
   }
 
-  &__toolbar {
-    @include flex(row, center, center);
-    gap: 4px;
+  // 工具栏滚动容器
+  &__toolbar-scroll-wrapper {
+    position: relative;
+    max-width: 680px;
     width: max-content;
-    max-width: 800px;
     flex-shrink: 0; // 防止页面被压缩
-    padding: 4px 12px;
     background: var(--bp-gray-0);
     border-radius: 26px;
     background-color: rgba(var(--gray-0-rgb), 0.8);
@@ -36,13 +35,20 @@
     border-color: rgba(var(--gray-2-rgb), 1);
     border: $borderSize solid $borderColor-2;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
     pointer-events: auto; // 确保工具栏本身可以响应鼠标事件
 
     // 移动端样式调整
     @media (max-width: 768px) {
-      max-width: 360px;
-      overflow-x: auto;
+      max-width: 340px;
     }
+  }
+
+  &__toolbar {
+    @include flex(row, center, center);
+    gap: 4px;
+    width: max-content;
+    padding: 4px 12px;
   }
 
   // 工具栏过渡动画

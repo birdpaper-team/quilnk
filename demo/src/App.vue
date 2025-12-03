@@ -1,6 +1,6 @@
 <template>
   <div class="wrap" :class="{ dark: currentTheme === 'dark' || (currentTheme === 'system' && isSystemDark) }">
-    <div class="top-bar">
+    <!-- <div class="top-bar">
       <bp-button type="plain" status="gray" @click="printContent">打印内容</bp-button>
       <bp-button type="plain" status="gray" @click="initializeContent">初始化内容</bp-button>
       <bp-button type="plain" status="gray" @click="syncToViewer">同步到查看器</bp-button>
@@ -12,7 +12,7 @@
           <bp-radio value="system">跟随系统</bp-radio>
         </bp-radio-group>
       </div>
-    </div>
+    </div> -->
 
     <div class="container">
       <quilnk-editor ref="editorRef" :theme="currentTheme" />
