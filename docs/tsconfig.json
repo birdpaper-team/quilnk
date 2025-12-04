@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": ["DOM", "ESNext"],
+    "baseUrl": ".",
+    "target": "es2018",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "paths": {
+      "~/*": ["src/*"],
+    },
+    "resolveJsonModule": true,
+    "types": ["vite/client", "vitepress", "../global.d.ts", "birdpaper-icon/global", "birdpaper-ui/global"],
+    "strict": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["../global.d.ts"],
+  "exclude": ["node_modules"]
+}

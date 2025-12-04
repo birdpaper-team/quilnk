@@ -1,0 +1,24 @@
+{
+  "name": "@quilnk/docs",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev src --port 7080 --host --base /",
+    "build": "vitepress build src --base /",
+    "preview": "vitepress preview src --port 8080"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "quilnk": "workspace:*",
+    "@quilnk/components": "workspace:*",
+    "@quilnk/theme": "workspace:*",
+    "@quilnk/hooks": "workspace:*",
+    "shiki": "^0.14.1"
+  },
+  "devDependencies": {
+    "@nolebase/vitepress-plugin-enhanced-readabilities": "^2.3.0",
+    "vitepress": "^1.4.1"
+  }
+}

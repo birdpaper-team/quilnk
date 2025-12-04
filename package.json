@@ -8,6 +8,8 @@
     "demo:preview": "pnpm run -C demo preview",
     "clean": "rimraf dist && pnpm run -r --parallel clean",
     "build": "pnpm run clean && pnpm run -C scripts/build start",
+    "docs:dev": "pnpm run -C docs dev",
+    "docs:build": "pnpm run -C docs build",
     "typecheck": "pnpm run -C packages/components typecheck"
   },
   "keywords": [],
