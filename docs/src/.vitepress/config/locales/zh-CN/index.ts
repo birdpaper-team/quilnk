@@ -5,8 +5,8 @@ export default {
   label: "简体中文",
   lang: "zh-CN",
   title: "Quilnk",
-  titleTemplate: "一个 Vue UI 组件库",
-  description: "一个基于 Vue 的 UI 组件库",
+  titleTemplate: "一个基于 Vue3 的书信文本编辑器",
+  description: "Quilnk 是一个基于 Vue3 的书信文本编辑器，致力于为用户提供简洁、高效的书信创作体验。",
   themeConfig: {
     nav: nav,
     outline: "deep",

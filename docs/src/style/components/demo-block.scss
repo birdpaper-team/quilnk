@@ -1,0 +1,98 @@
+@use "../var";
+@use "@quilnk/theme/src/common/design.scss" as *;
+
+.demo-block {
+  width: 100%;
+  margin-top: 20px;
+
+  &-area {
+    padding: 16px 20px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    overflow-x: auto;
+    border: 1px solid $borderColor-3;
+  }
+
+  &-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    border-left: 1px solid $borderColor-3;
+    border-right: 1px solid $borderColor-3;
+    border-bottom: 1px solid $borderColor-3;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    @mixin icon-active {
+      border: 1px solid var(--bp-gray-8);
+      background-color: var(--bp-gray-8);
+      opacity: 1;
+      transition: all 0.2s ease;
+
+      .bp-icon {
+        fill: var(--bp-gray-0);
+        transition: all 0.2s ease;
+      }
+    }
+
+    .icon-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--bp-gray-3);
+      border-radius: 50%;
+      cursor: pointer;
+
+      .bp-icon {
+        fill: var(--bp-gray-9);
+        transition: all 0.2s ease;
+      }
+
+      &:hover {
+        opacity: 0.8;
+        @include icon-active;
+      }
+
+      &:not(:first-child) {
+        margin-left: 8px;
+      }
+    }
+
+    .icon-item-active {
+      @include icon-active;
+    }
+  }
+
+  &-code {
+    max-height: 0;
+    overflow: auto;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    transition: max-height 0.2s ease;
+
+    &-inner {
+      max-height: 600px;
+
+      div[class*="language-"] {
+        margin: 0;
+        border-radius: 0;
+      }
+    }
+  }
+}
+
+.open {
+  .demo-block-footer {
+    border-radius: 0px;
+  }
+
+  .demo-block-code {
+    max-height: 1000px;
+    border-left: 1px solid $borderColor-3;
+    border-right: 1px solid $borderColor-3;
+    border-bottom: 1px solid $borderColor-3;
+    transition: max-height 0.4s ease;
+  }
+}

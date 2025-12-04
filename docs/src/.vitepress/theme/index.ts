@@ -14,7 +14,7 @@ import "birdpaper-icon/dist/index.css";
 import DemoBlock from "../components/demo-block";
 import ApiBlock from "../components/api-block";
 
-// import "../../style/index.scss";
+import "../../style/index.scss";
 
 export default {
   ...Theme,

@@ -1,0 +1,58 @@
+@use "./var";
+@use "@quilnk/theme/src/common/design.scss" as *;
+
+.VPSidebar {
+  border-right: 1px solid $borderColor-3;
+  background: var(--bp-gray-0) !important;
+
+  .curtain {
+    background-color: var(--bp-gray-0);
+  }
+
+  .VPSidebarItem.level-0 > .item > .text,
+  .VPSidebarItem.level-0.has-active > .item > .text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--bp-gray-4);
+  }
+
+  .VPSidebarItem.level-1 {
+    padding: 4px 12px;
+
+    &:hover {
+      background-color: rgba(var(--bp-gray-2-rgb), 0.6);
+      border-radius: 10px;
+
+      .text {
+        color: var(--bp-gray-9) !important;
+
+        span {
+          color: var(--bp-gray-9);
+          transition: all 0.4s ease;
+        }
+      }
+    }
+
+    .text {
+      color: var(--bp-gray-7);
+      font-size: 13px;
+
+      span {
+        font-family: var(--font-quick);
+        font-weight: 800;
+        margin-left: 8px;
+        color: var(--bp-gray-6);
+      }
+    }
+  }
+}
+
+.VPSidebarItem.level-1.is-active > .item .link > .text {
+  &:hover {
+    color: var(--bp-primary-6) !important;
+  }
+}
+
+.VPSidebarItem.level-1.is-active > .item .link > .text > span {
+  color: var(--bp-primary-6);
+}

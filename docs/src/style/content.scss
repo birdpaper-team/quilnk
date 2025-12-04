@@ -1,0 +1,32 @@
+@use "./var";
+
+.vp-doc {
+  font-size: 14px;
+  color: var(--bp-gray-8);
+
+  a {
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+    color: var(--bp-primary-6);
+  }
+
+  h2 {
+    margin: 0;
+    border: none;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+}
+
+.vp-doc :not(pre) > code {
+  color: var(--bp-gray-9);
+}
+
+.vp-doc tr {
+  border-top: none;
+}
+
+.vp-doc blockquote p {
+  font-size: 14px;
+}
