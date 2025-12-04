@@ -4,6 +4,9 @@
 @use "./sidebar.scss";
 @use "./content.scss";
 
+// pages
+@use "./pages/home-page.scss";
+
 // components
 @use "./components/demo-block.scss";
 @use "./components/api-block.scss";

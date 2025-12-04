@@ -14,6 +14,10 @@ import "birdpaper-icon/dist/index.css";
 import DemoBlock from "../components/demo-block";
 import ApiBlock from "../components/api-block";
 
+import Quilnk from "quilnk/index.ts";
+import "@quilnk/theme/src/index.scss";
+import "@quilnk/theme/src/fonts/yrdzst.css";
+
 import "../../style/index.scss";
 
 export default {
@@ -23,6 +27,7 @@ export default {
   enhanceApp(ctx: EnhanceAppContext) {
     ctx.app.use(BirdpaperUI);
     ctx.app.use(BirdpaperIcon);
+    ctx.app.use(Quilnk);
 
     ctx.app.component("demo-block", DemoBlock);
     ctx.app.component("api-block", ApiBlock);

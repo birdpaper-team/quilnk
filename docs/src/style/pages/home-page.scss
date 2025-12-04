@@ -1,0 +1,22 @@
+@use "@quilnk/theme/src/mixins/mixins.scss" as *;
+
+.home-page {
+  &-banner {
+    @include flex(column, center, center);
+    gap: 80px;
+    width: 100%;
+    height: 640px;
+    padding-top: 460px;
+    background-color: var(--bp-gray-1);
+    overflow-y: hidden;
+
+    .quilnk-editor__stage {
+      min-height: auto;
+      border-radius: 16px;
+    }
+
+    .quilnk-editor__paper {
+      border-radius: 16px;
+    }
+  }
+}
